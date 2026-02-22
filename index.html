@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>編成表･車歴表</title>
     <link rel="icon" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
@@ -10,7 +10,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1c1c1c">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    
     <meta name="apple-mobile-web-app-title" content="編成表･車歴表">
     
     <style>
@@ -24,6 +23,30 @@
 
         body { font-family: sans-serif; background: var(--main-bg); margin: 0; color: var(--text-main); -webkit-tap-highlight-color: transparent; }
         
+        /* 回転アニメーションの設定 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ロード画面のスタイル */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .load-image {
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
         .header { background: var(--header-bg); color: white; padding: 15px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; position: sticky; top: 0; z-index: 100; }
 
         .system-section { background: var(--bar-bg); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; margin-top: 1px; cursor: pointer; }
@@ -113,6 +136,10 @@
 </head>
 <body>
 
+<div id="loading-overlay">
+    <img src="load.png" class="load-image">
+</div>
+
 <div id="home-view">
     <div class="header">ホーム</div>
     <div id="accordion-container"></div>
@@ -150,21 +177,25 @@ let currentCars = [];
 let fullHistoryEvents = []; 
 const PANTA_MAP = { '◇': 'p0', '＜': 'p1', '＞': 'p2', '<': 'py1', '>': 'py2' };
 
+// 自動更新用のバージョン（時間）
+const version = new Date().getTime();
+
 function loadAllData() {
     return new Promise((resolve) => {
-        Papa.parse('file - formation.csv', {
+        // 各CSVにバージョンを付与してキャッシュを回避
+        Papa.parse(`file - formation.csv?v=${version}`, {
             download: true, header: true, skipEmptyLines: 'greedy',
             complete: function(fResults) {
                 formationData = fResults.data.filter(r => r.会社名 && r.会社名.trim() !== "");
                 
-                Papa.parse('file - car_id.csv', {
+                Papa.parse(`file - car_id.csv?v=${version}`, {
                     download: true, header: true, skipEmptyLines: 'greedy',
                     complete: function(cResults) {
                         cResults.data.forEach(row => {
                             if(row['車両ID']) carIdMap[row['車両ID']] = row;
                         });
 
-                        Papa.parse('file - history.csv', {
+                        Papa.parse(`file - history.csv?v=${version}`, {
                             download: true, header: true, skipEmptyLines: 'greedy',
                             complete: function(hResults) {
                                 historyData = hResults.data;
@@ -181,6 +212,23 @@ function loadAllData() {
 loadAllData().then(() => {
     renderHome();
 });
+
+// 引っ張りリロードの実装
+let touchStart = 0;
+window.addEventListener('touchstart', (e) => {
+    touchStart = e.touches[0].pageY;
+}, {passive: true});
+
+window.addEventListener('touchmove', (e) => {
+    const touchMove = e.touches[0].pageY;
+    // ホーム画面かつ最上部で下に150px以上引っ張ったらリロード
+    if (document.getElementById('home-view').className !== 'hidden' && window.scrollY === 0 && touchMove - touchStart > 150) {
+        document.getElementById('loading-overlay').style.display = 'flex';
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    }
+}, {passive: true});
 
 function formatDateJP(dateStr) {
     if (!dateStr || dateStr.trim() === "") return "";
@@ -290,8 +338,8 @@ function showFormationList(sysName) {
             const periodLabel = (start || end) ? ` (${start||''}〜${end||''})` : '';
             let h = `<div class="f-name-tag">${name}${periodLabel}</div><div class="car-mini-list">`;
             cars.forEach(c => {
-                const lp = PANTA_MAP[c.左パンタ];
-                const rp = PANTA_MAP[c.右パンタ];
+                const lp = PANTA_MAP[c.leftPanta] || PANTA_MAP[c.左パンタ];
+                const rp = PANTA_MAP[c.rightPanta] || PANTA_MAP[c.右パンタ];
                 const lastNo = c.車両番号 ? c.車両番号.split('-').pop() : "";
                 h += `<div class="mini-car-container">
                     ${lp ? `<img src="parts/${lp}.png" class="mini-panta mini-panta-l ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
@@ -347,8 +395,8 @@ function renderDetail(name, start, end, company) {
         carIdsInFormation.push(carId);
         
         const carMeta = carIdMap[carId] || {};
-        const lp = PANTA_MAP[c.左パンタ];
-        const rp = PANTA_MAP[c.右パンタ];
+        const lp = PANTA_MAP[c.leftPanta] || PANTA_MAP[c.左パンタ];
+        const rp = PANTA_MAP[c.rightPanta] || PANTA_MAP[c.右パンタ];
 
         if (carMeta.落成日 && carMeta.製造所) {
             historyPool.push({
