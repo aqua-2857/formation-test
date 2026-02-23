@@ -20,11 +20,89 @@
             --text-main: #333333;
             --sub-gray: #808080;
             --bar-bg: #333333;
+            --accent-color: #444444;
         }
 
         body { font-family: sans-serif; background: var(--main-bg); margin: 0; color: var(--text-main); -webkit-tap-highlight-color: transparent; }
         
-        .header { background: var(--header-bg); color: white; padding: 15px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; position: sticky; top: 0; z-index: 100; }
+        /* ヘッダー調整：右端にボタンを置くため justify-content を追加 */
+        .header { 
+            background: var(--header-bg); 
+            color: white; 
+            padding: 0 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            height: 56px;
+            font-size: 1.1rem; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+
+        /* ハンバーガーボタンのスタイル */
+        .menu-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 200;
+        }
+        .menu-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background-color: white;
+            transition: 0.3s;
+        }
+
+        /* メニュー本体（オーバーレイ） */
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 250px;
+            height: 100%;
+            background: rgba(28, 28, 28, 0.95);
+            z-index: 150;
+            transition: 0.3s;
+            padding-top: 60px;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+        }
+        .nav-menu.active {
+            right: 0;
+        }
+        .nav-menu-item {
+            padding: 20px;
+            color: white;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            text-decoration: none;
+        }
+        .nav-menu-item:active {
+            background: var(--accent-color);
+        }
+
+        /* オーバーレイ背景 */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 140;
+        }
+        .menu-overlay.active {
+            display: block;
+        }
 
         .system-section { background: var(--bar-bg); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; margin-top: 1px; cursor: pointer; }
         .system-title { display: flex; align-items: center; gap: 10px; font-weight: bold; }
@@ -113,18 +191,45 @@
 </head>
 <body>
 
+<div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-menu-item" onclick="alert('このサイトについての情報をここに記載してください'); toggleMenu();">このサイトについて</div>
+    <div class="nav-menu-item" onclick="location.reload();">リロード</div>
+</div>
+
 <div id="home-view">
-    <div class="header">ホーム</div>
+    <div class="header">
+        <span>ホーム</span>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
     <div id="accordion-container"></div>
 </div>
 
 <div id="formation-view" class="hidden">
-    <div class="header" onclick="showHome()" style="cursor:pointer;">◀ <span id="formation-header-title">系統名</span></div>
+    <div class="header">
+        <span onclick="showHome()" style="cursor:pointer;">◀ <span id="formation-header-title">系統名</span></span>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
     <div id="formation-accordion-container"></div>
 </div>
 
 <div id="detail-view" class="hidden">
-    <div class="header" onclick="showFormation()" style="cursor:pointer;">◀ <span id="detail-header-title">編成名</span></div>
+    <div class="header">
+        <span onclick="showFormation()" style="cursor:pointer;">◀ <span id="detail-header-title">編成名</span></span>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
     <div class="detail-info-box">
         <div class="section-title">編成情報</div>
         <div class="info-row"><span class="info-label">車両形式</span> <span id="info-type"></span></div>
@@ -149,6 +254,12 @@ let currentSystem = "";
 let currentCars = [];
 let fullHistoryEvents = []; 
 const PANTA_MAP = { '◇': 'p0', '＜': 'p1', '＞': 'p2', '<': 'py1', '>': 'py2' };
+
+// メニューの開閉制御
+function toggleMenu() {
+    document.getElementById('nav-menu').classList.toggle('active');
+    document.getElementById('menu-overlay').classList.toggle('active');
+}
 
 function loadAllData() {
     return new Promise((resolve) => {
