@@ -71,14 +71,15 @@
 
         .section-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: var(--text-main); }
         .detail-info-box { padding: 20px; color: var(--text-main); line-height: 1.6; font-size: 14px; }
-        .info-row { display: flex; margin-bottom: 5px; }
+        .info-row { display: flex; margin-bottom: 5px; align-items: flex-start; }
         .info-label { width: 100px; color: var(--sub-gray); flex-shrink: 0; }
         .info-desc-block { margin-top: 10px; font-size: 13px; line-height: 1.5; }
         .stamp-icon-large { height: 32px; }
-        .divider { height: 1px; background-color: var(--sub-gray); margin: 10px 20px; }
+        .divider { height: 1px; background-color: var(--sub-gray); margin: 20px; opacity: 0.5; }
         
-        .car-unit { display: flex; flex-direction: column; margin-bottom: 45px; padding: 0 10px; }
-        .car-visual-row { display: flex; align-items: center; gap: 8px; }
+        /* 車両詳細ユニット */
+        .car-unit { display: flex; flex-direction: column; margin-bottom: 25px; padding: 0 20px; }
+        .car-visual-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; }
         .car-img-container { position: relative; width: 160px; height: 80px; flex-shrink: 0; cursor: pointer; }
         .detail-car-body { width: 100%; height: 50px; position: absolute; bottom: 14px; z-index: 10; background-size: contain; background-repeat: no-repeat; background-position: center; }
         .car-no-inline { position: absolute; top: calc(52% - 3px); left: 50%; transform: translate(-50%, -50%); z-index: 20; color: white; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,1); white-space: nowrap; }
@@ -92,10 +93,11 @@
         .bogie { position: absolute; bottom: 4px; width: 40px; z-index: 5; }
         .bogie-left { left: 22px; }
         .bogie-right { right: 22px; }
-        .car-meta { font-size: 12px; color: #333333; font-weight: bold; flex-grow: 1; line-height: 1.4; }
-        .car-specs-box { margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px; }
-        .car-desc-text { margin-top: 8px; font-size: 13px; color: var(--text-main); }
-        .stamp-small { height: 32px; margin-right: 5px; }
+        
+        .car-meta { font-size: 12px; color: #333333; font-weight: bold; flex-grow: 1; line-height: 1.4; display: flex; flex-direction: column; gap: 4px; }
+        .car-specs-box { margin-top: 5px; }
+        .car-desc-text { margin-top: 12px; font-size: 13px; color: var(--text-main); line-height: 1.5; }
+        .stamp-small { height: 32px; margin-top: 4px; }
 
         .history-section { border-top: 1px solid var(--sub-gray); margin-top: 20px; padding: 20px; }
         .history-item { margin-bottom: 18px; }
@@ -342,7 +344,7 @@ function renderDetail(name, start, end, company) {
     cCon.innerHTML = '<div class="section-title" style="padding: 0 20px;">車両情報</div>';
     
     const carIds = []; const hPool = [];
-    currentCars.forEach(c => {
+    currentCars.forEach((c, index) => {
         carIds.push(c.車両ID);
         const meta = carIdMap[c.車両ID] || {};
         const lp = PANTA_MAP[c.左パンタ], rp = PANTA_MAP[c.右パンタ];
@@ -355,25 +357,34 @@ function renderDetail(name, start, end, company) {
             ["補助電源装置", c.補助電源装置], ["空気圧縮機", c.空気圧縮機], ["動力台車", c.動力台車], ["付随台車", c.付随台車]
         ];
         specs.forEach(([label, val]) => {
-            if(val) specsHtml += `<div class="info-row"><span class="info-label">${label}</span><span>${val}</span></div>`;
+            if(val) specsHtml += `<div class="info-row"><span class="info-label">${label}</span><span style="font-size:14px;">${val}</span></div>`;
         });
 
-        cCon.innerHTML += `<div class="car-unit">
-            <div class="car-visual-row">
-                <div class="car-img-container" onclick="filterHistoryByCar('${c.車両ID}', '${c.車両番号}')">
-                    ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp==='p0'?'panta-p0':''} ${lp.startsWith('py')?'low-panta':''}">` : ''}
-                    ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp==='p0'?'panta-p0':''} ${rp.startsWith('py')?'low-panta':''}">` : ''}
-                    <div class="detail-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
-                    <div class="car-no-inline">${c.車両番号}</div>
-                    ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
-                    ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+        // 車両スタンプの生成
+        const carStamps = getStampsHTML(c["車両情報(選択)"], 'stamp-small');
+
+        cCon.innerHTML += `
+            <div class="car-unit">
+                <div class="car-visual-row">
+                    <div class="car-img-container" onclick="filterHistoryByCar('${c.車両ID}', '${c.車両番号}')">
+                        ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp==='p0'?'panta-p0':''} ${lp.startsWith('py')?'low-panta':''}">` : ''}
+                        ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp==='p0'?'panta-p0':''} ${rp.startsWith('py')?'low-panta':''}">` : ''}
+                        <div class="detail-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
+                        <div class="car-no-inline">${c.車両番号}</div>
+                        ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
+                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+                    </div>
+                    <div class="car-meta">
+                        <div>${meta.製造所 || ''}</div>
+                        <div>${formatDateJP(meta.落成日)}</div>
+                        <div class="car-stamps-inline">${carStamps}</div>
+                    </div>
                 </div>
-                <div class="car-meta"><div>${meta.製造所 || ''}</div><div>${formatDateJP(meta.落成日)}</div></div>
+                <div class="car-specs-box">${specsHtml}</div>
+                <div class="car-desc-text">${c["車両情報(記述)"] || ''}</div>
             </div>
-            <div class="car-specs-box">${specsHtml}</div>
-            <div style="margin-top:8px;">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
-            <div class="car-desc-text">${c["車両情報(記述)"] || ''}</div>
-        </div>`;
+            ${index < currentCars.length - 1 ? '<div class="divider"></div>' : ''}
+        `;
     });
 
     historyData.forEach(ev => {
