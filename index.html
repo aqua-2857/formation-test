@@ -226,46 +226,17 @@
     <div class="page-content">
         <h2>このサイトについて</h2>
         <p> 本サイトは、鉄道車両の編成、車歴をまとめたサイトです。日々データの追加、更新中です。 </p> 
-
- <p> 本サイトならびにデータは個人の趣味で制作・運営されており、各鉄道会社とは一切関係ありません。 </p> 
-
- <p> 本サイトのデータは、自ら調査した情報のほか、公表されている各種資料、鉄道雑誌、およびSNS等による目撃情報等を集計・整理したものです。情報の正確性については細心の注意を払っておりますが、その内容を保証するものではありません。万が一、情報の誤りによって損害が生じた場合でも、制作者は一切の責任を負いかねます。 </p> 
-
- <p> アイコン、画像データ等は制作者が作成したものであり、著作権は制作者に帰属します。転載は自由ですが、制作者や引用元を記載していただけるとありがたいです。また、商用目的での利用は固くお断りします。 </p> 
-
- <p> お問い合わせはTwitter(現𝕏)のDMからお願いします。 </p> 
-
- <p> <a href="https://x.com/aqua_2857s?s=21" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: none; padding: 10px; display: inline-block;">
-<img src="image/x.png"
-alt="icon" style= "height: 0.8em; width: auto; object-fit: contain; margin-right:
-8px; ">
-<span style="font-weight:
-bold; font-size: 16px： ">
-ミズイルカ
-<img src="image/link.png"
-alt="icon" style= "height: 0.8em; width: auto; object-fit: contain; margin-right:
-8px; ">
-<span style="font-weight:
-bold; font-size: 16px： "> </span>
-</ a>
-</div>
-
-        <div id="last-update" style="font-size: 12px; color: #808080; padding: 10px;"></div>
-
-<script>
-  
-    const lastUpdate = new Date(document.lastModified);
-    const year = lastUpdate.getFullYear();
-    const month = lastUpdate.getMonth() + 1;
-    const day = lastUpdate.getDate();
-    const hour = ("0" + lastUpdate.getHours()).slice(-2);
-    const min = ("0" + lastUpdate.getMinutes()).slice(-2);
-
-    document.getElementById('last-update').innerText = 
-        `最終更新: ${year}年${month}月${day}日 ${hour}:${min}`;
-</script>
-
-</div>
+        <p> 本サイトならびにデータは個人の趣味で制作・運営されており、各鉄道会社とは一切関係ありません。 </p> 
+        <p> 本サイトのデータは、自ら調査した情報のほか、公表されている各種資料、鉄道雑誌、およびSNS等による目撃情報等を集計・整理したものです。情報の正確性については細心の注意を払っておりますが、その内容を保証するものではありません。万が一、情報の誤りによって損害が生じた場合でも、制作者は一切の責任を負いかねます。 </p> 
+        <p> アイコン、画像データ等は制作者が作成したものであり、著作権は制作者に帰属します。転載は自由ですが、制作者や引用元を記載していただけるとありがたいです。また、商用目的での利用は固くお断りします。 </p> 
+        <p> お問い合わせはTwitter(現𝕏)のDMからお願いします。 </p> 
+        <p> <a href="https://x.com/aqua_2857s?s=21" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: none; padding: 10px; display: inline-block;">
+        <img src="image/x.png" alt="icon" style= "height: 0.8em; width: auto; object-fit: contain; margin-right: 8px;">
+        <span style="font-weight: bold; font-size: 16px;">ミズイルカ</span>
+        <img src="image/link.png" alt="icon" style= "height: 0.8em; width: auto; object-fit: contain; margin-right: 8px;">
+        </a></p>
+    </div>
+    <div id="last-update" style="font-size: 12px; color: #808080; padding: 10px;"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -278,7 +249,6 @@ let currentCars = [];
 let fullHistoryEvents = []; 
 const PANTA_MAP = { '◇': 'p0', '＜': 'p1', '＞': 'p2', '<': 'py1', '>': 'py2' };
 
-// メニュー・表示切替
 function toggleMenu() {
     document.getElementById('nav-menu').classList.toggle('active');
     document.getElementById('menu-overlay').classList.toggle('active');
@@ -304,10 +274,17 @@ function showFormation() {
 function showAbout() {
     hideAllViews();
     document.getElementById('about-view').classList.remove('hidden');
-    toggleMenu(); // メニューを閉じる
+    toggleMenu();
 }
 
-// データの読み込み
+const lastUpdate = new Date(document.lastModified);
+const year = lastUpdate.getFullYear();
+const month = lastUpdate.getMonth() + 1;
+const day = lastUpdate.getDate();
+const hour = ("0" + lastUpdate.getHours()).slice(-2);
+const min = ("0" + lastUpdate.getMinutes()).slice(-2);
+document.getElementById('last-update').innerText = `最終更新: ${year}年${month}月${day}日 ${hour}:${min}`;
+
 function loadAllData() {
     return new Promise((resolve) => {
         Papa.parse('file - formation.csv', {
@@ -340,7 +317,6 @@ loadAllData().then(() => {
     renderHome();
 });
 
-// 以降のヘルパー・レンダー関数は元のコードと同じ
 function formatDateJP(dateStr) {
     if (!dateStr || dateStr.trim() === "") return "";
     const parsePart = (part, context = {}) => {
@@ -414,19 +390,20 @@ function showFormationList(sysName) {
     fContainer.innerHTML = '';
     
     const sysData = formationData.filter(r => r.路線系統 === sysName);
-    const formKeys = [...new Set(sysData.map(r => `${r.形式}|${r.見出しアイコン || ''}`))];
+    // グループ化キーに見出し特記事項を追加
+    const formKeys = [...new Set(sysData.map(r => `${r.形式}|${r.見出しアイコン || ''}|${r.見出し特記事項 || ''}`))];
 
     formKeys.forEach((key, index) => {
-        const [formName, iconName] = key.split('|');
+        const [formName, iconName, noteName] = key.split('|');
         const formId = `form-${index}-${formName.replace(/\s+/g, '')}`;
-        const formData = sysData.filter(r => r.形式 === formName && (r.見出しアイコン || '') === iconName);
+        const formData = sysData.filter(r => r.形式 === formName && (r.見出しアイコン || '') === iconName && (r.見出し特記事項 || '') === noteName);
         const first = formData[0];
 
         fContainer.insertAdjacentHTML('beforeend', `
             <div class="system-section" onclick="toggleSection('${formId}', this)">
                 <div class="system-title">
                     ${iconName ? `<img src="icon/${iconName}.png" class="system-icon">` : ''}
-                    ${formName}
+                    ${formName} ${noteName ? `<span style="font-size:0.9em; font-weight:normal; margin-left:5px;">(${noteName})</span>` : ''}
                 </div>
                 <div class="arrow">▼</div>
             </div>
@@ -451,12 +428,23 @@ function showFormationList(sysName) {
             cars.forEach(c => {
                 const lp = PANTA_MAP[c.左パンタ];
                 const rp = PANTA_MAP[c.右パンタ];
-                const lastNo = c.車両番号 ? c.車両番号.split('-').pop() : "";
+                
+                // 車番表示ロジックの修正
+                let carNoDisplay = "";
+                if (!c.略号 || c.略号.trim() === "") {
+                    // 略号がない場合は車番全てを表示
+                    carNoDisplay = c.車両番号 || "";
+                } else {
+                    // 略号がある場合は 略号+下ケタを表示
+                    const lastNo = c.車両番号 ? c.車両番号.split('-').pop() : "";
+                    carNoDisplay = (c.略号 || '') + lastNo;
+                }
+
                 h += `<div class="mini-car-container">
                     ${lp ? `<img src="parts/${lp}.png" class="mini-panta mini-panta-l ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     ${rp ? `<img src="parts/${rp}.png" class="mini-panta mini-panta-r ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     <div class="mini-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
-                    <div class="mini-info-in-body">${c.略号||''}${lastNo}</div>
+                    <div class="mini-info-in-body">${carNoDisplay}</div>
                     ${c.左台車 ? `<img src="parts/${c.左台車}.png" class="mini-bogie mini-bogie-l">` : ''}
                     ${c.右台車 ? `<img src="parts/${c.右台車}.png" class="mini-bogie mini-bogie-r">` : ''}
                 </div>`;
