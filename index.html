@@ -39,7 +39,6 @@
             z-index: 100; 
         }
 
-        /* ハンバーガーボタン */
         .menu-btn {
             width: 44px;
             height: 44px;
@@ -59,7 +58,6 @@
             transition: 0.3s;
         }
 
-        /* ナビゲーションメニュー */
         .nav-menu {
             position: fixed;
             top: 0;
@@ -102,11 +100,9 @@
             display: block;
         }
 
-        /* ページコンテンツ用スタイル */
         .page-content { padding: 20px; line-height: 1.6; }
         .page-content h2 { font-size: 1.2rem; border-left: 4px solid var(--header-bg); padding-left: 10px; margin-top: 0; }
 
-        /* 既存のリスト表示用スタイル */
         .system-section { background: var(--bar-bg); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; margin-top: 1px; cursor: pointer; }
         .system-title { display: flex; align-items: center; gap: 10px; font-weight: bold; }
         .system-icon { width: 35px; height: 35px; background: white; border-radius: 4px; object-fit: contain; flex-shrink: 0; }
@@ -117,21 +113,52 @@
         .direction-label { color: var(--sub-gray); font-size: 11px; margin-bottom: 25px; display: flex; justify-content: space-between; font-weight: bold; }
         .formation-row { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; margin-bottom: 25px; cursor: pointer; }
         .f-name-tag { background: none; color: var(--text-main); font-weight: bold; min-width: 45px; text-align: left; font-size: 14px; flex-shrink: 0; }
-        .car-mini-list { display: flex; gap: 1px; align-items: flex-end; flex-wrap: wrap; width: 100%; }
-        .mini-car-container { position: relative; width: calc((100vw - 30px) / 6.2); max-width: 68px; aspect-ratio: 68 / 48; }
-        .mini-panta { position: absolute; width: 14.7%; z-index: 5; top: 12.5%; }
+        
+        /* 修正箇所：ミニ車両アイコンのコンテナ */
+        .car-mini-list { 
+            display: flex; 
+            gap: 2px; /* 車両間の空白を一定に固定 */
+            align-items: flex-end; 
+            width: 100%;
+            overflow-x: auto; /* はみ出す場合はスクロール */
+            padding-bottom: 5px;
+        }
+        .mini-car-container { 
+            position: relative; 
+            height: 48px; /* 高さを固定 */
+            flex-shrink: 0;
+        }
+        /* 子要素の画像に実際の比率を維持させるための設定 */
+        .mini-car-img-hidden {
+            height: 100%;
+            width: auto;
+            visibility: hidden;
+            display: block;
+        }
+
+        .mini-panta { position: absolute; width: 10px; z-index: 5; top: 12.5%; }
         .mini-panta-l { left: 11.7%; }
         .mini-panta-r { right: 11.7%; }
-        .mini-panta.panta-p0 { width: 29.4%; top: 12.5%; }
+        .mini-panta.panta-p0 { width: 20px; top: 12.5%; }
         .mini-panta-l.panta-p0 { left: 4.4%; }
         .mini-panta-r.panta-p0 { right: 4.4%; }
         .mini-panta.low-panta { top: 22.9%; } 
-        .mini-bogie { position: absolute; width: 23.5%; z-index: 5; bottom: 12.5%; }
+        .mini-bogie { position: absolute; width: 16px; z-index: 5; bottom: 12.5%; }
         .mini-bogie-l { left: 11.7%; }
         .mini-bogie-r { right: 11.7%; }
-        /* 修正箇所: mini-car-bodyの高さを固定し左詰めに */
-        .mini-car-body { width: 100%; height: 58.3%; position: absolute; bottom: 20.8%; z-index: 10; background-size: auto 100%; background-repeat: no-repeat; background-position: left bottom; }
-        .mini-info-in-body { position: absolute; bottom: 37.5%; width: 100%; text-align: center; z-index: 20; color: white; font-weight: bold; font-size: min(8px, 1.8vw); text-shadow: 1px 1px 1px rgba(0,0,0,0.8); white-space: nowrap; pointer-events: none; }
+        
+        /* 修正箇所：背景画像から通常のimgタグへ変更を想定したスタイル */
+        .mini-car-body { 
+            height: 58.3%; 
+            position: absolute; 
+            bottom: 20.8%; 
+            z-index: 10; 
+            width: 100%;
+            background-size: 100% 100%; 
+            background-repeat: no-repeat; 
+        }
+        
+        .mini-info-in-body { position: absolute; bottom: 37.5%; width: 100%; text-align: center; z-index: 20; color: white; font-weight: bold; font-size: 8px; text-shadow: 1px 1px 1px rgba(0,0,0,0.8); white-space: nowrap; pointer-events: none; }
         .section-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: var(--text-main); }
         .detail-info-box { padding: 20px; color: var(--text-main); line-height: 1.6; font-size: 14px; }
         .info-row { display: flex; margin-bottom: 5px; }
@@ -141,9 +168,31 @@
         .car-detail-list { padding: 0 10px; }
         .car-unit { display: flex; flex-direction: column; margin-bottom: 45px; }
         .car-visual-row { display: flex; align-items: center; gap: 8px; }
-        .car-img-container { position: relative; width: 160px; height: 80px; flex-shrink: 0; cursor: pointer; }
-        /* 修正箇所: detail-car-bodyの高さを固定し左詰めに */
-        .detail-car-body { width: 100%; height: 50px; position: absolute; bottom: 14px; z-index: 10; background-size: auto 100%; background-repeat: no-repeat; background-position: left bottom; }
+
+        /* 修正箇所：詳細ビューの車両コンテナ */
+        .car-img-container { 
+            position: relative; 
+            height: 80px; /* 高さを固定 */
+            flex-shrink: 0; 
+            cursor: pointer; 
+        }
+        .detail-car-body { 
+            width: 100%; 
+            height: 50px; 
+            position: absolute; 
+            bottom: 14px; 
+            z-index: 10; 
+            background-size: 100% 100%; 
+            background-repeat: no-repeat; 
+        }
+        /* ダミー画像用 */
+        .detail-car-img-hidden {
+            height: 100%;
+            width: auto;
+            visibility: hidden;
+            display: block;
+        }
+
         .car-no-inline { position: absolute; top: calc(52% - 3px); left: 50%; transform: translate(-50%, -50%); z-index: 20; color: white; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,1); white-space: nowrap; }
         .panta-detail { position: absolute; top: -5px; width: 22px; z-index: 5; } 
         .panta-left { left: 22px; }
@@ -229,16 +278,7 @@
         <h2>このサイトについて</h2>
         <p> 本サイトは、鉄道車両の編成、車歴をまとめたサイトです。日々データの追加、更新中です。 </p> 
         <p> 本サイトならびにデータは個人の趣味で制作・運営されており、各鉄道会社とは一切関係ありません。 </p> 
-        <p> 本サイトのデータは、自ら調査した情報のほか、公表されている各種資料、鉄道雑誌、およびSNS等による目撃情報等を集計・整理したものです。情報の正確性については細心の注意を払っておりますが、その内容を保証するものではありません。万が一、情報の誤りによって損害が生じた場合でも、制作者は一切の責任を負いかねます。 </p> 
-        <p> アイコン、画像データ等は制作者が作成したものであり、著作権は制作者に帰属します。転載は自由ですが、制作者や引用元を記載していただけるとありがたいです。また、商用目的での利用は固くお断りします。 </p> 
         <p> お問い合わせはTwitter(現𝕏)のDMからお願いします。 </p> 
-        <p> 
-            <a href="https://x.com/aqua_2857s?s=21" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: none; padding: 10px; display: inline-block;">
-                <img src="image/x.png" alt="icon" style="height: 0.8em; width: auto; object-fit: contain; margin-right: 8px;">
-                <span style="font-weight: bold; font-size: 16px;">ミズイルカ</span>
-                <img src="image/link.png" alt="icon" style="height: 0.8em; width: auto; object-fit: contain; margin-right: 8px;">
-            </a>
-        </p>
         <div id="last-update" style="font-size: 12px; color: #808080; padding: 10px;"></div>
     </div>
 </div>
@@ -253,7 +293,6 @@ let currentCars = [];
 let fullHistoryEvents = []; 
 const PANTA_MAP = { '◇': 'p0', '＜': 'p1', '＞': 'p2', '<': 'py1', '>': 'py2' };
 
-// メニュー・表示切替
 function toggleMenu() {
     document.getElementById('nav-menu').classList.toggle('active');
     document.getElementById('menu-overlay').classList.toggle('active');
@@ -279,24 +318,21 @@ function showFormation() {
 function showAbout() {
     hideAllViews();
     document.getElementById('about-view').classList.remove('hidden');
-    toggleMenu(); // メニューを閉じる
+    toggleMenu();
 }
 
-// データの読み込み
 function loadAllData() {
     return new Promise((resolve) => {
         Papa.parse('file - formation.csv', {
             download: true, header: true, skipEmptyLines: 'greedy',
             complete: function(fResults) {
                 formationData = fResults.data.filter(r => r.会社名 && r.会社名.trim() !== "");
-                
                 Papa.parse('file - car_id.csv', {
                     download: true, header: true, skipEmptyLines: 'greedy',
                     complete: function(cResults) {
                         cResults.data.forEach(row => {
                             if(row['車両ID']) carIdMap[row['車両ID']] = row;
                         });
-
                         Papa.parse('file - history.csv', {
                             download: true, header: true, skipEmptyLines: 'greedy',
                             complete: function(hResults) {
@@ -315,7 +351,6 @@ loadAllData().then(() => {
     renderHome();
 });
 
-// ヘルパー・レンダー関数
 function formatDateJP(dateStr) {
     if (!dateStr || dateStr.trim() === "") return "";
     const parsePart = (part, context = {}) => {
@@ -427,7 +462,9 @@ function showFormationList(sysName) {
                 const lp = PANTA_MAP[c.左パンタ];
                 const rp = PANTA_MAP[c.右パンタ];
                 const lastNo = c.車両番号 ? c.車両番号.split('-').pop() : "";
+                // 修正：透明なimgタグを置いて親コンテナの横幅を自動計算させる
                 h += `<div class="mini-car-container">
+                    <img src="body/${c.車体アイコン}.png" class="mini-car-img-hidden">
                     ${lp ? `<img src="parts/${lp}.png" class="mini-panta mini-panta-l ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     ${rp ? `<img src="parts/${rp}.png" class="mini-panta mini-panta-r ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     <div class="mini-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
@@ -448,11 +485,8 @@ function renderDetail(name, start, end, company) {
     window.scrollTo(0,0);
     
     currentCars = formationData.filter(r => 
-        r.編成名 === name && 
-        (r.始 || '') === start && 
-        (r.終 || '') === end && 
-        r.路線系統 === currentSystem && 
-        r.会社名 === company
+        r.編成名 === name && (r.始 || '') === start && (r.終 || '') === end && 
+        r.路線系統 === currentSystem && r.会社名 === company
     ).sort((a,b) => a.号車 - b.号車);
     const top = currentCars[0];
 
@@ -479,24 +513,19 @@ function renderDetail(name, start, end, company) {
     currentCars.forEach(c => {
         const carId = c.車両ID;
         carIdsInFormation.push(carId);
-        
         const carMeta = carIdMap[carId] || {};
         const lp = PANTA_MAP[c.左パンタ];
         const rp = PANTA_MAP[c.右パンタ];
 
         if (carMeta.落成日 && carMeta.製造所) {
-            historyPool.push({
-                date: carMeta.落成日,
-                stamp: 'rakusei',
-                desc: `${carMeta.製造所}にて落成。`,
-                carId: carId,
-                carNo: c.車両番号
-            });
+            historyPool.push({ date: carMeta.落成日, stamp: 'rakusei', desc: `${carMeta.製造所}にて落成。`, carId: carId, carNo: c.車両番号 });
         }
 
+        // 修正：詳細ビューでも同様に透明imgで幅を確保
         cCon.innerHTML += `<div class="car-unit">
             <div class="car-visual-row">
                 <div class="car-img-container" onclick="filterHistoryByCar('${carId}', '${c.車両番号}')">
+                    <img src="body/${c.車体アイコン}.png" class="detail-car-img-hidden">
                     ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     <div class="detail-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
@@ -524,12 +553,7 @@ function renderDetail(name, start, end, company) {
             }
         });
         if (eventCarIds.length > 0) {
-            historyPool.push({
-                date: ev.日付,
-                stamp: ev.スタンプ,
-                desc: ev.記述 || "",
-                carIds: eventCarIds
-            });
+            historyPool.push({ date: ev.日付, stamp: ev.スタンプ, desc: ev.記述 || "", carIds: eventCarIds });
         }
     });
 
@@ -542,14 +566,9 @@ function renderDetail(name, start, end, company) {
             if (item.carNo) prev.carNos.push(item.carNo);
             if (item.carIds) item.carIds.forEach(id => { if(!prev.carIds.includes(id)) prev.carIds.push(id); });
         } else {
-            fullHistoryEvents.push({
-                ...item,
-                carNos: item.carNo ? [item.carNo] : [],
-                carIds: item.carIds || [item.carId]
-            });
+            fullHistoryEvents.push({ ...item, carNos: item.carNo ? [item.carNo] : [], carIds: item.carIds || [item.carId] });
         }
     });
-
     renderHistoryList(fullHistoryEvents);
 }
 
@@ -557,12 +576,9 @@ function renderHistoryList(events, title = "車歴", isFiltered = false) {
     document.getElementById('history-title').innerText = title;
     const hList = document.getElementById('history-list');
     hList.innerHTML = '';
-
     events.forEach(ev => {
         const targetCarNos = ev.carNos && ev.carNos.length > 0 ? ev.carNos : currentCars.filter(c => ev.carIds.includes(c.車両ID)).map(c => c.車両番号);
-        
         const suffix = (isFiltered || targetCarNos.length === currentCars.length) ? "" : ` (${targetCarNos.join(', ')})`;
-        
         hList.innerHTML += `
             <div class="history-item">
                 <div class="history-top-row">
@@ -587,8 +603,7 @@ function toggleSection(id, el) {
 }
 
 const lastUpdate = new Date(document.lastModified);
-document.getElementById('last-update').innerText = 
-    `最終更新: ${lastUpdate.getFullYear()}年${lastUpdate.getMonth() + 1}月${lastUpdate.getDate()}日 ${("0" + lastUpdate.getHours()).slice(-2)}:${("0" + lastUpdate.getMinutes()).slice(-2)}`;
+document.getElementById('last-update').innerText = `最終更新: ${lastUpdate.getFullYear()}年${lastUpdate.getMonth() + 1}月${lastUpdate.getDate()}日`;
 </script>
 </body>
 </html>
