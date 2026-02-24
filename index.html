@@ -38,6 +38,9 @@
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 140; }
         .menu-overlay.active { display: block; }
 
+        .page-content { padding: 20px; line-height: 1.6; }
+        .page-content h2 { font-size: 1.2rem; border-left: 4px solid var(--header-bg); padding-left: 10px; margin-top: 0; }
+
         .system-section { background: var(--bar-bg); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; margin-top: 1px; cursor: pointer; }
         .system-title-container { display: flex; align-items: center; gap: 10px; }
         .system-text-stack { display: flex; flex-direction: column; }
@@ -77,7 +80,6 @@
         .stamp-icon-large { height: 32px; }
         .divider { height: 1px; background-color: var(--sub-gray); margin: 20px; opacity: 0.5; }
         
-        /* 車両詳細ユニット */
         .car-unit { display: flex; flex-direction: column; margin-bottom: 25px; padding: 0 20px; }
         .car-visual-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; }
         .car-img-container { position: relative; width: 160px; height: 80px; flex-shrink: 0; cursor: pointer; }
@@ -158,8 +160,20 @@
 <div id="about-view" class="hidden">
     <div class="header">
         <span onclick="showHome()" style="cursor:pointer;">◀ このサイトについて</span>
+        <div class="menu-btn" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     </div>
-    <div class="page-content" id="about-content"></div>
+    <div class="page-content">
+        <h2>このサイトについて</h2>
+        <p> 本サイトは、鉄道車両の編成、車歴をまとめたサイトです。日々データの追加、更新中です。 </p> 
+        <p> 本サイトならびにデータは個人の趣味で制作・運営されており、各鉄道会社とは一切関係ありません。 </p> 
+        <p> 本サイトのデータは、自ら調査した情報のほか、公表されている各種資料、鉄道雑誌、およびSNS等による目撃情報等を集計・整理したものです。情報の正確性については細心の注意を払っておりますが、その内容を保証するものではありません。 </p> 
+        <p> お問い合わせはTwitter(現𝕏)のDMからお願いします。 </p> 
+        <p> <a href="https://x.com/aqua_2857s?s=21" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: none; padding: 10px; display: inline-block;">
+        <img src="image/x.png" alt="icon" style= "height: 0.8em; width: auto; object-fit: contain; margin-right: 8px;">
+        <span style="font-weight: bold; font-size: 16px;">ミズイルカ</span>
+        </a></p>
+    </div>
+    <div id="last-update" style="font-size: 12px; color: #808080; padding: 20px;"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -183,6 +197,10 @@ function hideAllViews() {
 
 function showHome() { hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); }
 function showFormation() { hideAllViews(); document.getElementById('formation-view').classList.remove('hidden'); }
+function showAbout() { hideAllViews(); document.getElementById('about-view').classList.remove('hidden'); toggleMenu(); }
+
+const lastUpdate = new Date(document.lastModified);
+document.getElementById('last-update').innerText = `最終更新: ${lastUpdate.getFullYear()}年${lastUpdate.getMonth()+1}月${lastUpdate.getDate()}日 ${("0"+lastUpdate.getHours()).slice(-2)}:${("0"+lastUpdate.getMinutes()).slice(-2)}`;
 
 function loadAllData() {
     return new Promise((resolve) => {
@@ -360,9 +378,6 @@ function renderDetail(name, start, end, company) {
             if(val) specsHtml += `<div class="info-row"><span class="info-label">${label}</span><span style="font-size:14px;">${val}</span></div>`;
         });
 
-        // 車両スタンプの生成
-        const carStamps = getStampsHTML(c["車両情報(選択)"], 'stamp-small');
-
         cCon.innerHTML += `
             <div class="car-unit">
                 <div class="car-visual-row">
@@ -377,7 +392,7 @@ function renderDetail(name, start, end, company) {
                     <div class="car-meta">
                         <div>${meta.製造所 || ''}</div>
                         <div>${formatDateJP(meta.落成日)}</div>
-                        <div class="car-stamps-inline">${carStamps}</div>
+                        <div>${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
                     </div>
                 </div>
                 <div class="car-specs-box">${specsHtml}</div>
