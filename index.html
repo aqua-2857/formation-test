@@ -165,48 +165,39 @@
         .history-desc { font-size: 13px; color: #333; }
 
         .hidden { display: none !important; }
-        /* 車両ユニットごとの設定 */
+/* 車両ユニット全体の調整 */
 .car-unit {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     padding-bottom: 20px;
-    border-bottom: 0.5px solid #ccc; /* 車両間の細い罫線 */
+    border-bottom: 0.5px solid #ddd; /* 罫線を少し薄く設定 */
 }
 
-/* 最後の車両だけは罫線を表示しない */
-.car-unit:last-child {
-    border-bottom: none;
+/* ★二重線防止：車歴セクションの上の線を消す、または最後の車両の線を消す */
+/* 今回は最後の車両の線のみを消す設定を優先します */
+.car-unit:last-of-type {
+    border-bottom: none !important;
     margin-bottom: 0;
-    padding-bottom: 0;
+    padding-bottom: 10px;
 }
 
-/* 車両情報のテキスト（記述）の設定 */
-.car-desc {
-    margin-top: 8px;
-    font-size: 13px;
-    color: #333;
-}
-
-/* スペック情報のコンテナ設定 */
-.car-specs-container {
-    margin-top: 12px;
-}
-
-/* スペック行（集電装置など）の左端を揃える */
+/* スペック行のレイアウト：ここが左端を揃える肝です */
 .spec-row {
     display: flex;
     font-size: 12px;
-    margin-bottom: 4px;
-    line-height: 1.4;
+    margin-bottom: 5px;
+    padding-left: 20px; /* ★編成情報の「運用期間」などのラベル開始位置に合わせる */
 }
 
 .spec-label {
-    width: 100px; /* 編成情報の「車両形式」などのラベル幅と統一 */
+    width: 85px; /* ★編成情報のラベル幅に合わせる（画像から推測） */
     color: #808080;
     flex-shrink: 0;
+    text-align: left;
 }
 
 .spec-value {
     color: #333;
+    padding-left: 5px;
 }
     </style>
 </head>
@@ -595,7 +586,9 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
             <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
         </div>
         
-        <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
+        <div class="car-desc" style="padding-left:20px; margin-bottom:10px;">
+            ${c["車両情報(記述)"] || ''}
+        </div>
 
         <div class="car-specs-container">
             ${[
