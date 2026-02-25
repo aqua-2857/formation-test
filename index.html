@@ -185,29 +185,39 @@
         .history-desc { font-size: 13px; color: #333; }
 
         .hidden { display: none !important; }
-/* 車両ユニット全体の調整 */
+/* 車両ユニット全体の余白をリセット */
 .car-unit {
     margin-bottom: 20px;
-    padding: 0 0 20px 0; /* 左右のパディングを0にして、中身で制御する */
+    padding: 0 0 20px 0; /* 左右パディングを0にして、中身で位置を制御 */
     border-bottom: 0.5px solid #ddd;
 }
 
-/* 二重線防止：最後の車両の下線を消す */
+/* 最後の車両の下線を消して、車歴との二重線を防ぐ */
 .car-unit:last-of-type {
     border-bottom: none !important;
 }
 
-/* スペック行：左端を「編成情報」の見出しと同じ位置に合わせる */
+/* 車両情報の記述とスペック行の左端を「20px」で統一 */
+.car-desc, 
+.spec-row {
+    padding-left: 20px; /* ここを編成情報のラベルの余白と合わせる */
+}
+
+.car-desc {
+    margin-top: 8px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+/* スペック行のレイアウト */
 .spec-row {
     display: flex;
     font-size: 12px;
-    margin-bottom: 5px;
-    padding-left: 20px; /* ここが赤線の位置（編成情報の余白）と連動します */
+    margin-bottom: 4px;
 }
 
-/* ラベル幅：編成情報のラベル幅（約85px〜100px）と一致させる */
 .spec-label {
-    width: 85px; 
+    width: 85px; /* ラベルの幅。編成情報の「運用期間」などの幅と揃える */
     color: #808080;
     flex-shrink: 0;
 }
@@ -216,7 +226,6 @@
     color: #333;
     padding-left: 5px;
 }
-
 /* 車両記述（テキスト）も左端を揃える */
 .car-desc {
     padding: 0 20px;
@@ -600,7 +609,7 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
                         ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
                         ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
                     </div>
-    <div class="car-meta">
+<div class="car-meta">
             <div>${carMeta.製造所 || ''}</div>
             <div>${formatDateJP(carMeta.落成日)}</div>
             <div class="stamp-container" style="margin-top: 5px;">
@@ -613,13 +622,13 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
 
     <div class="car-specs-container">
         ${[
-            {l:'集電装置', v:c.集電装置},
             {l:'主電動機', v:c.主電動機},
             {l:'制御装置', v:c.制御装置},
             {l:'補助電源', v:c.補助電源装置},
             {l:'空気圧縮機', v:c.空気圧縮機},
             {l:'動力台車', v:c.動力台車},
-            {l:'付随台車', v:c.付随台車}
+            {l:'付随台車', v:c.付随台車},
+            {l:'集電装置', v:c.集電装置}
         ].map(item => item.v ? `
             <div class="spec-row">
                 <span class="spec-label">${item.l}</span>
