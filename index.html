@@ -165,6 +165,49 @@
         .history-desc { font-size: 13px; color: #333; }
 
         .hidden { display: none !important; }
+        /* 車両ユニットごとの設定 */
+.car-unit {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 0.5px solid #ccc; /* 車両間の細い罫線 */
+}
+
+/* 最後の車両だけは罫線を表示しない */
+.car-unit:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* 車両情報のテキスト（記述）の設定 */
+.car-desc {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #333;
+}
+
+/* スペック情報のコンテナ設定 */
+.car-specs-container {
+    margin-top: 12px;
+}
+
+/* スペック行（集電装置など）の左端を揃える */
+.spec-row {
+    display: flex;
+    font-size: 12px;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.spec-label {
+    width: 100px; /* 編成情報の「車両形式」などのラベル幅と統一 */
+    color: #808080;
+    flex-shrink: 0;
+}
+
+.spec-value {
+    color: #333;
+}
     </style>
 </head>
 <body>
@@ -531,27 +574,30 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
             });
         }
 
-        cCon.innerHTML += `<div class="car-unit">
-            <div class="car-visual-row">
-                <div class="car-img-container" onclick="filterHistoryByCar('${carId}', '${c.車両番号}')">
-                    ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
-                    ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
-                    <div class="detail-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
-                    <div class="car-no-inline">${c.車両番号}</div>
-                    ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
-                    ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+        cCon.innerHTML += `
+            <div class="car-unit" style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 0.5px solid #ccc;">
+                <div class="car-visual-row">
+                    <div class="car-img-container" onclick="filterHistoryByCar('${carId}', '${c.車両番号}')">
+                        ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                        ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                        <div class="detail-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
+                        <div class="car-no-inline">${c.車両番号}</div>
+                        ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
+                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+                    </div>
+                    <div class="car-meta">
+                        <div>${carMeta.製造所 || ''}</div>
+                        <div>${formatDateJP(carMeta.落成日)}</div>
+                    </div>
                 </div>
-                <div class="car-meta">
-                    <div>${carMeta.製造所 || ''}</div>
-                    <div>${formatDateJP(carMeta.落成日)}</div>
-                </div>
-            </div>
-            <div class="car-data-row">
+                
+                <div class="car-data-row">
             <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
         </div>
-        <div class="car-desc" style="margin-top:8px; font-size:13px; color:#333;">${c["車両情報(記述)"] || ''}</div>
+        
+        <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
 
-        <div class="car-specs-container" style="margin-top:12px; padding-top:10px; border-top:1px solid #eee;">
+        <div class="car-specs-container">
             ${[
                 {l:'集電装置', v:c.集電装置},
                 {l:'主電動機', v:c.主電動機},
@@ -561,9 +607,9 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
                 {l:'動力台車', v:c.動力台車},
                 {l:'付随台車', v:c.付随台車}
             ].map(item => item.v ? `
-                <div class="info-row" style="display:flex; font-size:12px; margin-bottom:4px; line-height:1.4;">
-                    <span style="width:85px; color:#808080; flex-shrink:0;">${item.l}</span>
-                    <span style="color:#333;">${item.v}</span>
+                <div class="spec-row">
+                    <span class="spec-label">${item.l}</span>
+                    <span class="spec-value">${item.v}</span>
                 </div>` : '').join('')}
         </div>
     </div>`;
