@@ -168,36 +168,40 @@
 /* 車両ユニット全体の調整 */
 .car-unit {
     margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 0.5px solid #ddd; /* 罫線を少し薄く設定 */
+    padding: 0 0 20px 0; /* 左右のパディングを0にして、中身で制御する */
+    border-bottom: 0.5px solid #ddd;
 }
 
-/* ★二重線防止：車歴セクションの上の線を消す、または最後の車両の線を消す */
-/* 今回は最後の車両の線のみを消す設定を優先します */
+/* 二重線防止：最後の車両の下線を消す */
 .car-unit:last-of-type {
     border-bottom: none !important;
-    margin-bottom: 0;
-    padding-bottom: 10px;
 }
 
-/* スペック行のレイアウト：ここが左端を揃える肝です */
+/* スペック行：左端を「編成情報」の見出しと同じ位置に合わせる */
 .spec-row {
     display: flex;
     font-size: 12px;
     margin-bottom: 5px;
-    padding-left: 20px; /* ★編成情報の「運用期間」などのラベル開始位置に合わせる */
+    padding-left: 20px; /* ここが赤線の位置（編成情報の余白）と連動します */
 }
 
+/* ラベル幅：編成情報のラベル幅（約85px〜100px）と一致させる */
 .spec-label {
-    width: 85px; /* ★編成情報のラベル幅に合わせる（画像から推測） */
+    width: 85px; 
     color: #808080;
     flex-shrink: 0;
-    text-align: left;
 }
 
 .spec-value {
     color: #333;
     padding-left: 5px;
+}
+
+/* 車両記述（テキスト）も左端を揃える */
+.car-desc {
+    padding: 0 20px;
+    margin: 8px 0 10px 0;
+    font-size: 13px;
 }
     </style>
 </head>
@@ -582,13 +586,11 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
                     </div>
                 </div>
                 
-                <div class="car-data-row">
-            <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
+  <div class="car-data-row">
+            <div class="stamp-container" style="padding-left: 20px;">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
         </div>
         
-        <div class="car-desc" style="padding-left:20px; margin-bottom:10px;">
-            ${c["車両情報(記述)"] || ''}
-        </div>
+        <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
 
         <div class="car-specs-container">
             ${[
