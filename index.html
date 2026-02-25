@@ -547,10 +547,26 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
                 </div>
             </div>
             <div class="car-data-row">
-                <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"],'stamp-small')}</div>
-                <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
-            </div>
-        </div>`;
+            <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
+        </div>
+        <div class="car-desc" style="margin-top:8px; font-size:13px;">${c["車両情報(記述)"] || ''}</div>
+
+        <div class="car-specs-container" style="margin-top:10px; margin-left:-20px; margin-right:-20px; padding:10px 20px; background:rgba(0,0,0,0.03);">
+            ${[
+                {l:'集電装置', v:c.集電装置},
+                {l:'主電動機', v:c.主電動機},
+                {l:'制御装置', v:c.制御装置},
+                {l:'補助電源', v:c.補助電源装置},
+                {l:'空気圧縮機', v:c.空気圧縮機},
+                {l:'動力台車', v:c.動力台車},
+                {l:'付随台車', v:c.付随台車}
+            ].map(item => item.v ? `
+                <div class="info-row" style="display:flex; font-size:12px; margin-bottom:3px;">
+                    <span style="width:85px; color:#808080; flex-shrink:0;">${item.l}</span>
+                    <span style="color:#333;">${item.v}</span>
+                </div>` : '').join('')}
+        </div>
+    </div>`;
     });
 
     historyData.forEach(ev => {
