@@ -123,10 +123,10 @@
         
         /* 車両アイコン幅をファイルに合わせる設定 */
         .mini-car-container { position: relative; width: auto; height: 28px; display: flex; align-items: flex-end; }
-        .mini-car-body { height: 58.3%; width: auto; display: block; position: relative; z-index: 15; }
+        .mini-car-body { height: 50%; width: auto; display: block; position: relative; z-index: 15; }
         
         /* パーツ位置をpx指定に変更（ズレ防止） */
-        .mini-panta { position: absolute; width: 8px; z-index: 10; top: 12.5%; }
+        .mini-panta { position: absolute; width: 8px; z-index: 10; top: 15%; }
         .mini-panta-l { left: 8px; }
         .mini-panta-r { right: 8px; }
         .mini-panta.panta-p0 { width: 20px; top: 12.5%; }
@@ -552,7 +552,7 @@ function renderDetail(name, start, end, company) {
                         <div class="detail-car-body" style="background-image: url('body/${c.車体アイコン}.png');"></div>
                         <div class="car-no-inline">${c.車両番号}</div>
                         ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
-                        ${c.rightBogie?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
                     </div>
                     <div class="car-meta">
                         <div>${carMeta.製造所 || ''}</div>
