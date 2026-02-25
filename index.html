@@ -204,6 +204,7 @@
     </div>
     <div class="detail-info-box">
         <div class="section-title">編成情報</div>
+        <div class="info-row" id="info-period-row"><span class="info-label">運用期間</span> <span id="info-period"></span></div>
         <div class="info-row"><span class="info-label">車両形式</span> <span id="info-type"></span></div>
         <div class="info-row"><span class="info-label">所属基地</span> <span id="info-base"></span></div>
         <div class="info-row" id="atacs-row"><span class="info-label">ATACS-ID</span> <span id="info-atacs"></span></div>
@@ -476,7 +477,7 @@ function renderDetail(name, start, end, company) {
     ).sort((a,b) => a.号車 - b.号車);
     const top = currentCars[0];
 
-    document.getElementById('detail-header-title').innerText = name + ((start || end) ? ` (${start||''}〜${end||''})` : '');
+    document.getElementById('detail-header-title').innerText = name;
     document.getElementById('info-type').innerText = `${top.形式} ${top.番台 || ''}`.trim();
     document.getElementById('info-base').innerText = top.所属基地;
 
