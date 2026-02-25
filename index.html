@@ -549,9 +549,9 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
             <div class="car-data-row">
             <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
         </div>
-        <div class="car-desc" style="margin-top:8px; font-size:13px;">${c["車両情報(記述)"] || ''}</div>
+        <div class="car-desc" style="margin-top:8px; font-size:13px; color:#333;">${c["車両情報(記述)"] || ''}</div>
 
-        <div class="car-specs-container" style="margin-top:10px; margin-left:-20px; margin-right:-20px; padding:10px 20px; background:rgba(0,0,0,0.03);">
+        <div class="car-specs-container" style="margin-top:12px; padding-top:10px; border-top:1px solid #eee;">
             ${[
                 {l:'集電装置', v:c.集電装置},
                 {l:'主電動機', v:c.主電動機},
@@ -561,7 +561,7 @@ formationDesc.innerText = top["編成情報(記述)"] || '';
                 {l:'動力台車', v:c.動力台車},
                 {l:'付随台車', v:c.付随台車}
             ].map(item => item.v ? `
-                <div class="info-row" style="display:flex; font-size:12px; margin-bottom:3px;">
+                <div class="info-row" style="display:flex; font-size:12px; margin-bottom:4px; line-height:1.4;">
                     <span style="width:85px; color:#808080; flex-shrink:0;">${item.l}</span>
                     <span style="color:#333;">${item.v}</span>
                 </div>` : '').join('')}
