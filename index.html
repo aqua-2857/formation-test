@@ -126,13 +126,13 @@
         .mini-car-body { height: 50%; width: auto; display: block; position: relative; z-index: 15; transform: translateY(-8px); }
         
         /* パーツ位置をpx指定に変更（ズレ防止） */
-        .mini-panta { position: absolute; width: 8px; z-index: 10; top: 4%; }
+        .mini-panta { position: absolute; width: 8px; z-index: 10; bottom: 18px; }
         .mini-panta-l { left: 8px; }
         .mini-panta-r { right: 8px; }
-        .mini-panta.panta-p0 { width: 20px; top: 12.5%; }
+        .mini-panta.panta-p0 { width: 20px; bottom: 18px; }
         .mini-panta-l.panta-p0 { left: 3px; }
         .mini-panta-r.panta-p0 { right: 3px; }
-        .mini-panta.low-panta { top: 22.9%; } 
+        .mini-panta.low-panta { bottom: 18px; } 
         
         .mini-bogie { position: absolute; height: 5px; z-index: 5; bottom: 15%; }
         .mini-bogie-l { left: 4px; }
@@ -150,7 +150,7 @@
         .car-unit { display: flex; flex-direction: column; margin-bottom: 45px; }
         .car-visual-row { display: flex; align-items: center; gap: 8px; }
         .car-img-container { position: relative; width: fit-content; height: 80px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; }
-        .detail-car-body { height: 50px; width: auto; position: relative; bottom: (-12px); z-index: 10; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .detail-car-body { height: 50px; width: auto; position: relative; top: 50px; z-index: 10; background-size: contain; background-repeat: no-repeat; background-position: center; }
         .car-no-inline { position: absolute; top: calc(52% - 3px); left: 50%; transform: translate(-50%, -50%); z-index: 20; color: white; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,1); white-space: nowrap; }
         .panta-detail { position: absolute; top: -1px; width: 22px; z-index: 5; } 
         .panta-left { left: 22px; }
