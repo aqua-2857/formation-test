@@ -451,7 +451,7 @@ function showFormationList(sysName) {
         const namesWithPeriod = [...new Set(formData.map(r => `${r.編成名}|${r.始 || ''}|${r.終 || ''}|${r.会社名}`))];
 
         namesWithPeriod.forEach(keyStr => {
-            const [name, start, end, company] = keyStr.split('|');
+            const [name, start, end, company, note] = keyStr.split('|');
             const cars = formData.filter(r => 
                 r.編成名 === name && 
                 (r.始 || '') === start && 
@@ -462,7 +462,7 @@ function showFormationList(sysName) {
             
             const row = document.createElement('div');
             row.className = 'formation-row';
-            row.onclick = () => renderDetail(name, start, end, company);
+            row.onclick = () => renderDetail(name, start, end, company, note);
 
             const periodLabel = (start || end) ? ` (${start||''}〜${end||''})` : '';
             let h = `<div class="f-name-tag">${name}${periodLabel}</div><div class="car-mini-list">`;
@@ -489,7 +489,7 @@ function showFormationList(sysName) {
     });
 }
 
-function renderDetail(name, start, end, company) {
+function renderDetail(name, start, end, company, note) {
     hideAllViews();
     document.getElementById('detail-view').classList.remove('hidden');
     window.scrollTo(0,0);
