@@ -448,7 +448,7 @@ function showFormationList(sysName) {
             </div>`);
 
         const rowsBox = fContainer.querySelector(`#${formId} .rows-box`);
-        const namesWithPeriod = [...new Set(formData.map(r => `${r.編成名}|${r.始 || ''}|${r.終 || ''}|${r.会社名}`))];
+        const namesWithPeriod = [...new Set(formData.map(r => `${r.編成名}|${r.始 || ''}|${r.終 || ''}|${r.会社名}|${r.見出し特記事項 || ''}`))];
 
         namesWithPeriod.forEach(keyStr => {
             const [name, start, end, company, note] = keyStr.split('|');
