@@ -366,9 +366,10 @@ function formatDateJP(dateStr) {
     };
     const stringify = (obj) => {
         let res = "";
-        if (obj.y) res += obj.y + "年";
-        if (obj.m) res += obj.m + "月";
-        if (obj.d) res += obj.d + "日";
+        // Number() を使用して "01" 等を数値変換し、先頭の0を消去
+        if (obj.y) res += Number(obj.y) + "年";
+        if (obj.m) res += Number(obj.m) + "月";
+        if (obj.d) res += Number(obj.d) + "日";
         return res;
     };
     if (dateStr.includes('-')) {
