@@ -556,7 +556,7 @@ function renderDetail(name, start, end, company, note) {
 
         if (carMeta.落成日 && carMeta.製造所) {
             historyPool.push({
-                date: carMeta.落成日, stamp: 'rakusei', desc: `${carMeta.製造所}にて落成。`, carId: carId, carNo: c.車両番号
+                date: carMeta.落成日, stamp: 'rakusei', desc: `${carMeta.製造所}にて落成。`, carIds: [carId], carNos: [c.車両番号]
             });
         }
 
