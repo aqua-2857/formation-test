@@ -254,15 +254,15 @@
 
 <div id="car-history-view" class="hidden">
     <div class="header">
-        <span onclick="showDetailFromCarHistory()" style="cursor:pointer;">◀ <span id="car-history-header-title">車両詳細</span></span>
+        <span onclick="showDetailFromCarHistory()" style="cursor:pointer;">◀ <span id="car-history-header-title">車両変遷</span></span>
         <div class="menu-btn" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>
     </div>
-    <div id="car-appearances-container"></div>
+    <div id="car-timeline-container" class="car-detail-list" style="padding: 20px 10px;"></div>
     <div class="history-section">
-        <div class="section-title">この車両の車歴</div>
-        <div id="car-history-list"></div>
+        <div class="section-title">全期間の車歴</div>
+        <div id="car-total-history-list"></div>
     </div>
 </div>
 
@@ -300,7 +300,7 @@ let historyData = [];
 let currentSystem = "";
 let currentCars = [];
 let fullHistoryEvents = []; 
-let lastFormationParams = null;
+let lastDetailParams = null;
 const PANTA_MAP = { '◇': 'p0', '＜': 'p1', '＞': 'p2', '<': 'py1', '>': 'py2', 'x': 'px' };
 
 // メニュー・表示切替
@@ -313,8 +313,8 @@ function hideAllViews() {
     document.getElementById('home-view').classList.add('hidden');
     document.getElementById('formation-view').classList.add('hidden');
     document.getElementById('detail-view').classList.add('hidden');
-    document.getElementById('car-history-view').classList.add('hidden');
     document.getElementById('about-view').classList.add('hidden');
+    document.getElementById('car-history-view').classList.add('hidden');
 }
 
 function showHome() {
@@ -334,8 +334,8 @@ function showAbout() {
 }
 
 function showDetailFromCarHistory() {
-    if (lastFormationParams) {
-        renderDetail(...lastFormationParams);
+    if (lastDetailParams) {
+        renderDetail(...lastDetailParams);
     } else {
         showHome();
     }
@@ -518,17 +518,15 @@ function showFormationList(sysName) {
 }
 
 function renderDetail(name, start, end, company, note) {
+    lastDetailParams = [name, start, end, company, note];
     hideAllViews();
     document.getElementById('detail-view').classList.remove('hidden');
     window.scrollTo(0,0);
     
-    lastFormationParams = [name, start, end, company, note];
-
     currentCars = formationData.filter(r => 
         r.編成名 === name && 
         (r.始 || '') === start && 
         (r.終 || '') === end && 
-        r.路線系統 === currentSystem && 
         r.会社名 === company &&
         (r.見出し特記事項 || '') === (note || '')
     ).sort((a,b) => a.号車 - b.号車);
@@ -586,7 +584,7 @@ function renderDetail(name, start, end, company, note) {
        cCon.innerHTML += `
            <div class="car-unit">
                <div class="car-visual-row">
-                   <div class="car-img-container" onclick="showCarHistory('${carId}')">
+                   <div class="car-img-container" onclick="showCarHistory('${carId}', '${c.車両番号}')">
                        ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                        ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                 
@@ -598,24 +596,24 @@ function renderDetail(name, start, end, company, note) {
                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
                    </div>
                    <div class="car-meta">
-                        <div>${carMeta.製造所 || ''}</div>
-                        <div>${formatDateJP(carMeta.落成日)}</div>
-                        <div class="stamp-container" style="margin-top: 5px;">
-                            ${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}
-                        </div>
+                       <div style="color:var(--sub-gray)">製造: ${carMeta.製造所 || ''}</div>
+                       <div style="color:var(--sub-gray)">${formatDateJP(carMeta.落成日)}</div>
+                       <div class="stamp-container" style="margin-top: 5px;">
+                           ${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}
+                       </div>
                    </div>
                </div>
                <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
                <div class="car-specs-container">
-                    ${[
-                        {l:'集電装置', v:c.集電装置}, {l:'主電動機', v:c.主電動機}, {l:'制御装置', v:c.制御装置},
-                        {l:'補助電源', v:c.補助電源装置}, {l:'空気圧縮機', v:c.空気圧縮機}, {l:'動力台車', v:c.動力台車},
-                        {l:'付随台車', v:c.付随台車}
-                    ].map(item => item.v ? `
-                        <div class="spec-row">
-                            <span class="spec-label">${item.l}</span>
-                            <span class="spec-value">${item.v}</span>
-                        </div>` : '').join('')}
+                   ${[
+                       {l:'集電装置', v:c.集電装置}, {l:'主電動機', v:c.主電動機}, {l:'制御装置', v:c.制御装置},
+                       {l:'補助電源', v:c.補助電源装置}, {l:'空気圧縮機', v:c.空気圧縮機}, {l:'動力台車', v:c.動力台車},
+                       {l:'付随台車', v:c.付随台車}
+                   ].map(item => item.v ? `
+                       <div class="spec-row">
+                           <span class="spec-label">${item.l}</span>
+                           <span class="spec-value">${item.v}</span>
+                       </div>` : '').join('')}
                </div>
            </div>`;
     });
@@ -666,6 +664,95 @@ function renderDetail(name, start, end, company, note) {
     renderHistoryList(fullHistoryEvents);
 }
 
+function showCarHistory(carId, carNo) {
+    hideAllViews();
+    document.getElementById('car-history-view').classList.remove('hidden');
+    document.getElementById('car-history-header-title').innerText = `${carNo} の変遷`;
+    window.scrollTo(0, 0);
+
+    const container = document.getElementById('car-timeline-container');
+    container.innerHTML = '';
+
+    const timeline = formationData.filter(r => r.車両ID === carId)
+        .sort((a, b) => (a.始 || "").localeCompare(b.始 || ""));
+
+    timeline.forEach(c => {
+        const lp = PANTA_MAP[c.左パンタ];
+        const rp = PANTA_MAP[c.右パンタ];
+        
+        const section = document.createElement('div');
+        section.className = 'car-unit';
+        section.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; color: var(--header-bg); margin-bottom: 5px; padding: 0 10px;">
+                ${c.始 || ''} 〜 ${c.終 || ''}
+            </div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 8px; padding: 0 10px;">
+                ${c.会社名} / ${c.路線系統}<br>
+                所属: ${c.所属基地}<br>
+                ${c.形式} ${c.番台 || ''} (${c.編成名})
+            </div>
+            <div style="font-size: 12px; margin-bottom: 15px; color: #333; padding: 0 10px;">
+                ${c["編成情報(記述)"] || ''}
+            </div>
+
+            <div class="car-visual-row" style="padding: 0 10px;">
+                <div class="car-img-container" onclick="renderDetail('${c.編成名}', '${c.始||''}', '${c.終||''}', '${c.会社名}', '${c['見出し特記事項']||''}')">
+                    ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                    ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                    <img src="body/${c.車体アイコン}.png" class="detail-car-body">
+                    <div class="car-no-inline">${c.車両番号}</div>
+                    ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
+                    ${c.中台車?`<img src="parts/${c.中台車}.png" class="bogie bogie-center">`:''}
+                    ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+                </div>
+                <div class="car-meta">
+                    <div class="stamp-container">
+                        ${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}
+                    </div>
+                </div>
+            </div>
+            <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
+            <div class="car-specs-container">
+                ${[{l:'集電装置', v:c.集電装置}, {l:'主電動機', v:c.主電動機}, {l:'制御装置', v:c.制御装置},
+                   {l:'補助電源', v:c.補助電源装置}, {l:'空気圧縮機', v:c.空気圧縮機}, {l:'動力台車', v:c.動力台車},
+                   {l:'付随台車', v:c.付随台車}].map(item => item.v ? `
+                    <div class="spec-row">
+                        <span class="spec-label">${item.l}</span>
+                        <span class="spec-value">${item.v}</span>
+                    </div>` : '').join('')}
+            </div>
+        `;
+        container.appendChild(section);
+    });
+
+    // その車両IDに関連する全ての車歴を表示
+    const carMeta = carIdMap[carId] || {};
+    const totalHistory = [];
+    if (carMeta.落成日) {
+        totalHistory.push({ date: carMeta.落成日, stamp: 'rakusei', desc: `${carMeta.製造所}にて落成。`, carIds: [carId] });
+    }
+    historyData.forEach(ev => {
+        const hasCar = Object.keys(ev).some(key => key.startsWith('車両ID-') && ev[key] === carId);
+        if (hasCar) {
+            totalHistory.push({ date: ev.日付, stamp: ev.スタンプ, desc: ev.記述 || "", carIds: [carId] });
+        }
+    });
+
+    totalHistory.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    const hList = document.getElementById('car-total-history-list');
+    hList.innerHTML = '';
+    totalHistory.forEach(ev => {
+        hList.innerHTML += `
+            <div class="history-item">
+                <div class="history-top-row">
+                    <div class="history-date">${formatDateJP(ev.date)}</div>
+                    <div class="history-stamp-container">${getStampsHTML(ev.stamp, 'history-stamp', 'history')}</div>
+                </div>
+                <div class="history-desc">${ev.desc}</div>
+            </div>`;
+    });
+}
+
 function renderHistoryList(events, title = "車歴", isFiltered = false) {
     document.getElementById('history-title').innerText = title;
     const hList = document.getElementById('history-list');
@@ -681,81 +768,6 @@ function renderHistoryList(events, title = "車歴", isFiltered = false) {
                     <div class="history-stamp-container">${getStampsHTML(ev.stamp, 'history-stamp', 'history')}</div>
                 </div>
                 <div class="history-desc">${ev.desc + suffix}</div>
-            </div>`;
-    });
-}
-
-function showCarHistory(carId) {
-    hideAllViews();
-    document.getElementById('car-history-view').classList.remove('hidden');
-    window.scrollTo(0, 0);
-    renderCarHistoryPage(carId);
-}
-
-function renderCarHistoryPage(carId) {
-    const carAppearances = formationData.filter(r => r.車両ID === carId);
-    carAppearances.sort((a, b) => (a.始 || "9999").localeCompare(b.始 || "9999"));
-
-    const container = document.getElementById('car-appearances-container');
-    const firstData = carAppearances[0];
-    document.getElementById('car-history-header-title').innerText = `${firstData.車両番号} の全経歴`;
-
-    let html = '';
-    carAppearances.forEach(c => {
-        const lp = PANTA_MAP[c.左パンタ];
-        const rp = PANTA_MAP[c.右パンタ];
-        const detailParams = `'${c.編成名}','${c.始||''}','${c.終||''}','${c.会社名}','${c.見出し特記事項||''}'`;
-
-        html += `
-            <div class="detail-info-box" style="border-bottom: 2px solid #ccc; background: #fff; margin-bottom: 10px;">
-                <div class="info-row"><span class="info-label">期間</span> <span>${c.始 || ''} 〜 ${c.終 || ''}</span></div>
-                <div class="info-row"><span class="info-label">会社・系統</span> <span>${c.会社名} / ${c.路線系統}</span></div>
-                <div class="info-row"><span class="info-label">所属基地</span> <span>${c.所属基地}</span></div>
-                <div class="info-row"><span class="info-label">形式・編成</span> <span>${c.形式} ${c.番台||''} ${c.編成名}</span></div>
-                <div class="info-row"><span class="info-label">特記事項</span> <span>${c.見出し特記事項 || 'なし'}</span></div>
-                <div style="font-size: 13px; margin: 8px 0;">${c["編成情報(記述)"] || ''}</div>
-                
-                <div class="car-unit" style="border: none; padding: 0;">
-                    <div class="car-visual-row">
-                        <div class="car-img-container" onclick="renderDetail(${detailParams})">
-                            ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
-                            ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
-                            <img src="body/${c.車体アイコン}.png" class="detail-car-body">
-                            <div class="car-no-inline">${c.車両番号}</div>
-                        </div>
-                        <div class="car-meta">
-                             <div class="stamp-container">${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}</div>
-                        </div>
-                    </div>
-                    <div class="car-desc">${c["車両情報(記述)"] || ''}</div>
-                    <div class="car-specs-container">
-                        ${[{l:'集電装置', v:c.集電装置}, {l:'主電動機', v:c.主電動機}, {l:'制御装置', v:c.制御装置},
-                           {l:'補助電源', v:c.補助電源装置}, {l:'空気圧縮機', v:c.空気圧縮機}, {l:'動力台車', v:c.動力台車},
-                           {l:'付随台車', v:c.付随台車}].map(item => item.v ? `
-                            <div class="spec-row">
-                                <span class="spec-label">${item.l}</span>
-                                <span class="spec-value">${item.v}</span>
-                            </div>` : '').join('')}
-                    </div>
-                </div>
-            </div>`;
-    });
-    container.innerHTML = html;
-
-    const filteredHistory = historyData.filter(ev => {
-        return Object.keys(ev).some(key => key.startsWith('車両ID-') && ev[key] === carId);
-    }).sort((a, b) => a.日付.localeCompare(b.日付));
-
-    const hList = document.getElementById('car-history-list');
-    hList.innerHTML = '';
-    filteredHistory.forEach(ev => {
-        hList.innerHTML += `
-            <div class="history-item">
-                <div class="history-top-row">
-                    <div class="history-date">${formatDateJP(ev.日付)}</div>
-                    <div class="history-stamp-container">${getStampsHTML(ev.スタンプ, 'history-stamp', 'history')}</div>
-                </div>
-                <div class="history-desc">${ev.記述 || ""}</div>
             </div>`;
     });
 }
