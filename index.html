@@ -199,6 +199,9 @@
         .spec-label { width: 85px; color: #808080; flex-shrink: 0; }
         .spec-value { color: #333; padding-left: 5px; }
         .car-desc { padding: 0 20px; margin: 8px 0 10px 0; font-size: 13px; }
+
+        /* 追加：変遷ページ用スタイル */
+        .history-jump-btn { font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px; color: #666; margin-left: auto; }
     </style>
 </head>
 <body>
@@ -252,6 +255,18 @@
     </div>
 </div>
 
+<div id="car-history-view" class="hidden">
+    <div class="header">
+        <span onclick="showDetailFromHistory()" style="cursor:pointer;">◀ <span id="car-history-header-title">車両番号</span> の変遷</span>
+        <div class="menu-btn" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+    <div class="page-content">
+        <div id="car-appearance-list"></div>
+    </div>
+</div>
+
 <div id="about-view" class="hidden">
     <div class="header">
         <span onclick="showHome()" style="cursor:pointer;">◀ このウェブアプリについて</span>
@@ -299,6 +314,7 @@ function hideAllViews() {
     document.getElementById('formation-view').classList.add('hidden');
     document.getElementById('detail-view').classList.add('hidden');
     document.getElementById('about-view').classList.add('hidden');
+    document.getElementById('car-history-view').classList.add('hidden');
 }
 
 function showHome() {
@@ -365,7 +381,6 @@ function formatDateJP(dateStr) {
     };
     const stringify = (obj) => {
         let res = "";
-        // Number() を使用して "01" 等を数値変換し、先頭の0を消去
         if (obj.y) res += Number(obj.y) + "年";
         if (obj.m) res += Number(obj.m) + "月";
         if (obj.d) res += Number(obj.d) + "日";
@@ -478,7 +493,6 @@ function showFormationList(sysName) {
                 const rp = PANTA_MAP[c.右パンタ];
                 const carNoDisplay = c.略号 ? (c.車両番号 ? c.車両番号.split('-').pop() : "") : (c.車両番号 || "");
 
-                // 車体長可変対応: background-imageではなくimgタグを使用
                 h += `<div class="mini-car-container">
                     ${lp ? `<img src="parts/${lp}.png" class="mini-panta mini-panta-l ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     ${rp ? `<img src="parts/${rp}.png" class="mini-panta mini-panta-r ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
@@ -560,20 +574,19 @@ function renderDetail(name, start, end, company, note) {
         }
 
        cCon.innerHTML += `
-           <div class="car-unit">
-               <div class="car-visual-row">
-                   <div class="car-img-container" onclick="filterHistoryByCar('${carId}', '${c.車両番号}')">
-                       ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
-                       ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
-                
-                       <img src="body/${c.車体アイコン}.png" class="detail-car-body">
-                
-                       <div class="car-no-inline">${c.車両番号}</div>
-                       ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
-                       ${c.中台車?`<img src="parts/${c.中台車}.png" class="bogie bogie-center">`:''}
-                       ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
-                   </div>
-                   <div class="car-meta">
+            <div class="car-unit">
+                <div class="car-visual-row">
+                    <div class="car-img-container" onclick="showCarTransistion('${carId}', '${c.車両番号}')">
+                        ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                        ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                        <img src="body/${c.車体アイコン}.png" class="detail-car-body">
+                        <div class="car-no-inline">${c.車両番号}</div>
+                        ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
+                        ${c.中台車?`<img src="parts/${c.中台車}.png" class="bogie bogie-center">`:''}
+                        ${c.rightBogie?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
+                    </div>
+                    <div class="car-meta">
                         <div>${carMeta.製造所 || ''}</div>
                         <div>${formatDateJP(carMeta.落成日)}</div>
                         <div class="stamp-container" style="margin-top: 5px;">
@@ -661,10 +674,70 @@ function renderHistoryList(events, title = "車歴", isFiltered = false) {
     });
 }
 
-function filterHistoryByCar(carId, carNo) {
-    const filtered = fullHistoryEvents.filter(ev => ev.carIds.includes(carId));
-    renderHistoryList(filtered, `車歴 (${carNo})`, true);
-    document.querySelector('.history-section').scrollIntoView({ behavior: 'smooth' });
+// 車両の変遷を表示する新しいメイン関数
+function showCarTransistion(carId, carNo) {
+    hideAllViews();
+    document.getElementById('car-history-view').classList.remove('hidden');
+    document.getElementById('car-history-header-title').innerText = carNo;
+    window.scrollTo(0, 0);
+
+    const listContainer = document.getElementById('car-appearance-list');
+    listContainer.innerHTML = '';
+
+    // formationDataから同じ車両IDを持つデータをすべて抽出
+    const transitions = formationData.filter(r => r.車両ID === carId);
+
+    // 運行期間（始）でソート（古い順）
+    transitions.sort((a, b) => (a.始 || "").localeCompare(b.始 || ""));
+
+    transitions.forEach(data => {
+        const lp = PANTA_MAP[data.左パンタ];
+        const rp = PANTA_MAP[data.右パンタ];
+        
+        const item = document.createElement('div');
+        item.className = 'car-unit';
+        item.style.cursor = 'pointer'; 
+        item.onclick = () => jumpToFormation(data.編成名, data.始, data.終, data.会社名, data.見出し特記事項, data.路線系統);
+
+        item.innerHTML = `
+            <div style="font-size: 11px; color: #888; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span>📅 ${data.始 || '不明'} 〜 ${data.終 || '現在'}</span>
+                <span class="history-jump-btn">編成表へ ◀</span>
+            </div>
+            <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">
+                ${data.会社名} ${data.路線系統} / ${data.編成名}編成
+            </div>
+            <div class="car-visual-row">
+                <div class="car-img-container">
+                    ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                    ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
+                    <img src="body/${data.車体アイコン}.png" class="detail-car-body">
+                    <div class="car-no-inline">${data.車両番号}</div>
+                    ${data.左台車?`<img src="parts/${data.左台車}.png" class="bogie bogie-left">`:''}
+                    ${data.中台車?`<img src="parts/${data.中台車}.png" class="bogie bogie-center">`:''}
+                    ${data.右台車?`<img src="parts/${data.右台車}.png" class="bogie bogie-right">`:''}
+                </div>
+                <div class="car-meta">
+                    <div style="font-size:12px;">${data.形式} ${data.番台 || ''}</div>
+                    <div class="stamp-container">
+                        ${getStampsHTML(data["車両情報(選択)"], 'stamp-small')}
+                    </div>
+                </div>
+            </div>
+            <div class="car-desc">${data["車両情報(記述)"] || ''}</div>
+        `;
+        listContainer.appendChild(item);
+    });
+}
+
+function jumpToFormation(name, start, end, company, note, system) {
+    currentSystem = system; 
+    renderDetail(name, start || '', end || '', company, note || '');
+}
+
+function showDetailFromHistory() {
+    hideAllViews();
+    document.getElementById('detail-view').classList.remove('hidden');
 }
 
 function toggleSection(id, el) {
