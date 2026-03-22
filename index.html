@@ -596,8 +596,8 @@ function renderDetail(name, start, end, company, note) {
                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
                    </div>
                    <div class="car-meta">
-                       <div style="color:var(--sub-gray)">製造: ${carMeta.製造所 || ''}</div>
-                       <div style="color:var(--sub-gray)">${formatDateJP(carMeta.落成日)}</div>
+                       <div>${carMeta.製造所 || ''}</div>
+                       <div>${formatDateJP(carMeta.落成日)}</div>
                        <div class="stamp-container" style="margin-top: 5px;">
                            ${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}
                        </div>
@@ -688,10 +688,10 @@ function showCarHistory(carId, carNo) {
             </div>
             <div style="font-size: 13px; color: #666; margin-bottom: 8px; padding: 0 10px;">
                 ${c.会社名} / ${c.路線系統}<br>
-                所属: ${c.所属基地}<br>
+                ${c.所属基地}<br>
                 ${c.形式} ${c.番台 || ''} (${c.編成名})
             </div>
-            <div style="font-size: 12px; margin-bottom: 15px; color: #333; padding: 0 10px;">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 15px; color: #333; padding: 0 10px;">
                 ${c["編成情報(記述)"] || ''}
             </div>
 
