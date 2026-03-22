@@ -701,11 +701,11 @@ function showCarTransistion(carId, carNo) {
 
         item.innerHTML = `
             <div style="font-size: 11px; color: #888; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <span>📅 ${data.始 || '不明'} 〜 ${data.終 || '現在'}</span>
+                <span>期間 ${data.始 || '不明'} 〜 ${data.終 || '現在'}</span>
                 <span class="history-jump-btn">編成表へ ◀</span>
             </div>
             <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">
-                ${data.会社名} ${data.路線系統} / ${data.編成名}編成
+                ${data.会社名} ${data.路線系統} / ${data.編成名}
             </div>
             <div class="car-visual-row">
                 <div class="car-img-container">
