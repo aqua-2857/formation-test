@@ -596,8 +596,8 @@ function renderDetail(name, start, end, company, note) {
                        ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
                    </div>
                    <div class="car-meta">
-                       <div>${carMeta.製造所 || ''}</div>
-                       <div>${formatDateJP(carMeta.落成日)}</div>
+                       <div style="font-size: 12px; font-weight: bold; margin-bottom: 15px; color: #333; padding: 0 10px;"> ${carMeta.製造所 || ''}</div>
+                       <div style="font-size: 12px; font-weight: bold; margin-bottom: 15px; color: #333; padding: 0 10px;"> ${formatDateJP(carMeta.落成日)}</div>
                        <div class="stamp-container" style="margin-top: 5px;">
                            ${getStampsHTML(c["車両情報(選択)"], 'stamp-small')}
                        </div>
