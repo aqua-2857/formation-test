@@ -348,9 +348,11 @@ function showDetailFromCarHistory() {
 }
 
 // データの読み込み（複数ファイル対応版）
+
 function loadAllData() {
     return new Promise((resolve) => {
-        const files = [
+        // 読み込むファイルのリスト
+        const formationFiles = [
             'file - formation1.csv',
             'file - formation2.csv',
             'file - formation3.csv'
@@ -359,51 +361,73 @@ function loadAllData() {
         let loadedCount = 0;
         let tempFormationData = [];
 
-        files.forEach(fileName => {
+        // 1. formation1～3を読み込む
+        formationFiles.forEach(fileName => {
             Papa.parse(fileName, {
                 download: true,
                 header: true,
                 skipEmptyLines: 'greedy',
                 complete: function(results) {
+                    console.log(fileName + " 読み込み成功");
                     const filtered = results.data.filter(r => r.会社名 && r.会社名.trim() !== "");
                     tempFormationData = tempFormationData.concat(filtered);
-                    
-                    loadedCount++;
-                    if (loadedCount === files.length) {
-                        formationData = tempFormationData;
-                        loadSecondaryData(resolve);
-                    }
+                    checkProgress();
                 },
-                error: function() {
-                    loadedCount++;
-                    if (loadedCount === files.length) {
-                        formationData = tempFormationData;
-                        loadSecondaryData(resolve);
-                    }
+                error: function(err) {
+                    console.error(fileName + " が読み込めません:", err);
+                    checkProgress(); // エラーでも次へ進める
                 }
             });
         });
-    });
-}
 
-function loadSecondaryData(resolve) {
-    Papa.parse('file - car_id.csv', {
-        download: true, header: true, skipEmptyLines: 'greedy',
-        complete: function(cResults) {
-            cResults.data.forEach(row => {
-                if(row['車両ID']) carIdMap[row['車両ID']] = row;[span_0](end_span)
-            });
-
-            Papa.parse('file - history.csv', {
-                download: true, header: true, skipEmptyLines: 'greedy',
-                complete: function(hResults) {
-                    [span_1](start_span)historyData = hResults.data;[span_1](end_span)
-                    resolve();
-                }
-            });
+        function checkProgress() {
+            loadedCount++;
+            if (loadedCount === formationFiles.length) {
+                formationData = tempFormationData;
+                // 次に car_id と history を読みに行く
+                loadRemainingFiles(resolve);
+            }
         }
     });
 }
+
+function loadRemainingFiles(resolve) {
+    // 2. car_id.csv の読み込み
+    Papa.parse('file - car_id.csv', {
+        download: true,
+        header: true,
+        skipEmptyLines: 'greedy',
+        complete: function(cResults) {
+            cResults.data.forEach(row => {
+                if(row['車両ID']) carIdMap[row['車両ID']] = row;
+            });
+            // 3. history.csv の読み込み
+            loadHistoryFile(resolve);
+        },
+        error: function() {
+            console.error("car_id.csv が見つかりません");
+            loadHistoryFile(resolve);
+        }
+    });
+}
+
+function loadHistoryFile(resolve) {
+    Papa.parse('file - history.csv', {
+        download: true,
+        header: true,
+        skipEmptyLines: 'greedy',
+        complete: function(hResults) {
+            historyData = hResults.data;
+            console.log("全データ読み込み完了");
+            resolve();
+        },
+        error: function() {
+            console.error("history.csv が見つかりません");
+            resolve(); // 履歴がなくてもアプリは起動させる
+        }
+    });
+}
+
 
 
 function formatDateJP(dateStr) {
