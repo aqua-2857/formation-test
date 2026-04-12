@@ -347,38 +347,64 @@ function showDetailFromCarHistory() {
     }
 }
 
-// データの読み込み
+// データの読み込み（複数ファイル対応版）
 function loadAllData() {
     return new Promise((resolve) => {
-        Papa.parse('file - formation.csv', {
-            download: true, header: true, skipEmptyLines: 'greedy',
-            complete: function(fResults) {
-                formationData = fResults.data.filter(r => r.会社名 && r.会社名.trim() !== "");
-                
-                Papa.parse('file - car_id.csv', {
-                    download: true, header: true, skipEmptyLines: 'greedy',
-                    complete: function(cResults) {
-                        cResults.data.forEach(row => {
-                            if(row['車両ID']) carIdMap[row['車両ID']] = row;
-                        });
+        const files = [
+            'file - formation1.csv',
+            'file - formation2.csv',
+            'file - formation3.csv'
+        ];
 
-                        Papa.parse('file - history.csv', {
-                            download: true, header: true, skipEmptyLines: 'greedy',
-                            complete: function(hResults) {
-                                historyData = hResults.data;
-                                resolve();
-                            }
-                        });
+        let loadedCount = 0;
+        let tempFormationData = [];
+
+        files.forEach(fileName => {
+            Papa.parse(fileName, {
+                download: true,
+                header: true,
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    const filtered = results.data.filter(r => r.会社名 && r.会社名.trim() !== "");
+                    tempFormationData = tempFormationData.concat(filtered);
+                    
+                    loadedCount++;
+                    if (loadedCount === files.length) {
+                        formationData = tempFormationData;
+                        loadSecondaryData(resolve);
                     }
-                });
-            }
+                },
+                error: function() {
+                    loadedCount++;
+                    if (loadedCount === files.length) {
+                        formationData = tempFormationData;
+                        loadSecondaryData(resolve);
+                    }
+                }
+            });
         });
     });
 }
 
-loadAllData().then(() => {
-    renderHome();
-});
+function loadSecondaryData(resolve) {
+    Papa.parse('file - car_id.csv', {
+        download: true, header: true, skipEmptyLines: 'greedy',
+        complete: function(cResults) {
+            cResults.data.forEach(row => {
+                if(row['車両ID']) carIdMap[row['車両ID']] = row;[span_0](end_span)
+            });
+
+            Papa.parse('file - history.csv', {
+                download: true, header: true, skipEmptyLines: 'greedy',
+                complete: function(hResults) {
+                    [span_1](start_span)historyData = hResults.data;[span_1](end_span)
+                    resolve();
+                }
+            });
+        }
+    });
+}
+
 
 function formatDateJP(dateStr) {
     if (!dateStr || dateStr.trim() === "") return "";
