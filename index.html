@@ -347,88 +347,58 @@ function showDetailFromCarHistory() {
     }
 }
 
-// データの読み込み（複数ファイル対応版）
-
+// データの読み込み
 function loadAllData() {
     return new Promise((resolve) => {
-        // 読み込むファイルのリスト
+        // 分割されたファイル名のリスト
         const formationFiles = [
             'file - formation1.csv',
             'file - formation2.csv',
             'file - formation3.csv'
         ];
 
-        let loadedCount = 0;
-        let tempFormationData = [];
-
-        // 1. formation1～3を読み込む
-        formationFiles.forEach(fileName => {
-            Papa.parse(fileName, {
-                download: true,
-                header: true,
-                skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    console.log(fileName + " 読み込み成功");
-                    const filtered = results.data.filter(r => r.会社名 && r.会社名.trim() !== "");
-                    tempFormationData = tempFormationData.concat(filtered);
-                    checkProgress();
-                },
-                error: function(err) {
-                    console.error(fileName + " が読み込めません:", err);
-                    checkProgress(); // エラーでも次へ進める
-                }
+        // すべてのformationファイルを読み込むPromiseの配列を作成
+        const formationPromises = formationFiles.map(file => {
+            return new Promise((res) => {
+                Papa.parse(file, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: 'greedy',
+                    complete: (results) => res(results.data)
+                });
             });
         });
 
-        function checkProgress() {
-            loadedCount++;
-            if (loadedCount === formationFiles.length) {
-                formationData = tempFormationData;
-                // 次に car_id と history を読みに行く
-                loadRemainingFiles(resolve);
-            }
-        }
-    });
-}
+        // 全てのCSV読み込みが完了したら統合する
+        Promise.all(formationPromises).then((resultsArray) => {
+            // resultsArrayは [[data1], [data2], [data3]] の形式なので、一つに結合する
+            formationData = resultsArray.flat().filter(r => r.会社名 && r.会社名.trim() !== "");
 
-function loadRemainingFiles(resolve) {
-    // 2. car_id.csv の読み込み
-    Papa.parse('file - car_id.csv', {
-        download: true,
-        header: true,
-        skipEmptyLines: 'greedy',
-        complete: function(cResults) {
-            cResults.data.forEach(row => {
-                if(row['車両ID']) carIdMap[row['車両ID']] = row;
+            // その後、既存のcar_idとhistoryを読み込む
+            Papa.parse('file - car_id.csv', {
+                download: true, header: true, skipEmptyLines: 'greedy',
+                complete: function(cResults) {
+                    cResults.data.forEach(row => {
+                        if(row['車両ID']) carIdMap[row['車両ID']] = row;
+                    });
+
+                    Papa.parse('file - history.csv', {
+                        download: true, header: true, skipEmptyLines: 'greedy',
+                        complete: function(hResults) {
+                            historyData = hResults.data;
+                            resolve();
+                        }
+                    });
+                }
             });
-            // 3. history.csv の読み込み
-            loadHistoryFile(resolve);
-        },
-        error: function() {
-            console.error("car_id.csv が見つかりません");
-            loadHistoryFile(resolve);
-        }
-    });
-}
-
-function loadHistoryFile(resolve) {
-    Papa.parse('file - history.csv', {
-        download: true,
-        header: true,
-        skipEmptyLines: 'greedy',
-        complete: function(hResults) {
-            historyData = hResults.data;
-            console.log("全データ読み込み完了");
-            resolve();
-        },
-        error: function() {
-            console.error("history.csv が見つかりません");
-            resolve(); // 履歴がなくてもアプリは起動させる
-        }
+        });
     });
 }
 
 
+loadAllData().then(() => {
+    renderHome();
+});
 
 function formatDateJP(dateStr) {
     if (!dateStr || dateStr.trim() === "") return "";
