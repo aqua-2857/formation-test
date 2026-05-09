@@ -46,6 +46,15 @@
             margin: 0;
         }
 
+        /* 編成詳細ヘッダー用アイコンスタイル */
+        .header-formation-icon {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
         /* ハンバーガーボタン */
         .menu-btn {
             width: 44px;
@@ -318,7 +327,7 @@
 
 <div id="detail-view" class="hidden">
     <div class="header">
-        <span onclick="showFormation()" style="cursor:pointer;">◀ <span id="detail-header-title">編成名</span></span>
+        <span onclick="showFormation()" style="cursor:pointer; display: flex; align-items: center;">◀ <span id="detail-header-title" style="display: flex; align-items: center; margin-left: 5px;">編成名</span></span>
         <div class="menu-btn" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>
@@ -502,7 +511,7 @@ function formatDateJP(dateStr) {
  let y = context.y, m = context.m, d = context.d;
  if (segments.length === 3) {
             y = segments[0];
- m = segments[1]; d = segments[2];
+ m = segments[1]; d = null;
         } else if (segments.length === 2) {
             if (segments[0].length === 4) { y = segments[0];
  m = segments[1]; d = null; }
@@ -622,11 +631,10 @@ function showFormationList(sysName) {
  row.className = 'formation-row';
             row.onclick = () => renderDetail(name, start, end, company, note);
 
-            // ここで編成アイコンを取得
+            // 編成アイコンを取得
             const fIcon = cars[0]["編成アイコン"];
             const periodLabel = (start || end) ? ` (${start||''}〜${end||''})` : '';
             
-            // 編成名の横にアイコンを追加
             let h = `<div class="f-name-tag">
                         ${fIcon ? `<img src="icon/${fIcon}.png" class="f-name-icon" onerror="this.style.display='none'">` : ''}
                         <span>${name}${periodLabel}</span>
@@ -676,7 +684,14 @@ function renderDetail(name, start, end, company, note) {
     ).sort((a,b) => a.号車 - b.号車);
  const top = currentCars[0];
 
-    document.getElementById('detail-header-title').innerText = name;
+    // 詳細画面のヘッダーに編成アイコンを追加
+    const fIcon = top["編成アイコン"];
+    const headerTitle = document.getElementById('detail-header-title');
+    headerTitle.innerHTML = `
+        ${fIcon ? `<img src="icon/${fIcon}.png" class="header-formation-icon" onerror="this.style.display='none'">` : ''}
+        <span>${name}</span>
+    `;
+
     const periodRow = document.getElementById('info-period-row');
  if (start || end) {
         periodRow.classList.remove('hidden');
@@ -887,7 +902,7 @@ function showCarHistory(carId, carNo) {
  container.appendChild(section);
     });
 
-    // その車両IDに関連する全ての車歴を表示
+    // 車両IDに関連する全ての車歴を表示
     const carMeta = carIdMap[carId] || {};
     const totalHistory = [];
  if (carMeta.落成日) {
