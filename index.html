@@ -159,7 +159,6 @@
             width: auto; display: block; position: relative; z-index: 15; transform: translateY(-6px);
             }
         
-        /* パーツ位置をpx指定に変更（ズレ防止） */
         .mini-panta { position: absolute;
             width: 8px; z-index: 10; bottom: 24px; }
         .mini-panta-l { left: 8px;
@@ -680,7 +679,6 @@ function renderDetail(name, start, end, company, note) {
     ).sort((a,b) => a.号車 - b.号車);
  const top = currentCars[0];
 
-    // 詳細画面のヘッダーに編成アイコンを追加
     const fIcon = top["編成アイコン"];
     const headerTitle = document.getElementById('detail-header-title');
     headerTitle.innerHTML = `
@@ -873,7 +871,7 @@ function showCarHistory(carId, carNo) {
                     ${c.左台車?`<img src="parts/${c.左台車}.png" class="bogie bogie-left">`:''}
                  
     ${c.中台車?`<img src="parts/${c.中台車}.png" class="bogie bogie-center">`:''}
-                    ${c.rightBogie?`<img src="parts/${c.rightBogie}.png" class="bogie bogie-right">`:''}
+                    ${c.右台車?`<img src="parts/${c.右台車}.png" class="bogie bogie-right">`:''}
                 </div>
                 <div class="car-meta">
                     <div class="stamp-container">
