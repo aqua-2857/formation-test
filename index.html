@@ -831,6 +831,11 @@ function renderDetail(name, start, end, company, note) {
 }
 
 function showCarHistory(carId, carNo) {
+    if (!carId || carId.trim() === "") {
+        alert(`この車両の変遷表示は対応してません。`);
+        return;
+    }
+
     hideAllViews();
     document.getElementById('car-history-view').classList.remove('hidden');
     document.getElementById('car-history-header-title').innerText = `${carNo} の変遷`;
