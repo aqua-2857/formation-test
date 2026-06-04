@@ -46,11 +46,10 @@
             margin: 0;
         }
 
-        /* 編成詳細ヘッダー用アイコンスタイル（サイズを35pxから70pxに拡大） */
+        /* 編成詳細ヘッダー用アイコンスタイル */
         .header-formation-icon {
-            width: 70px;
-            height: auto;
-            max-height: 50px;
+            width: 35px;
+            height: 35px;
             object-fit: contain;
             vertical-align: middle;
             margin-right: 8px;
@@ -131,8 +130,7 @@
                         }
         .system-title { display: flex; align-items: center; gap: 10px; font-weight: bold;
                       }
-        /* 形式アコーディオンの見出しアイコン（サイズを35pxから70pxに拡大） */
-        .system-icon { width: 70px; height: auto; max-height: 50px; background: transparent; border-radius: 4px; object-fit: contain;
+        .system-icon { width: 35px; height: 35px; background: transparent; border-radius: 4px; object-fit: contain;
                        flex-shrink: 0; }
         .arrow { transition: transform 0.3s; font-size: 12px;
                }
@@ -150,14 +148,15 @@
         .f-name-tag { background: none; color: var(--text-main); font-weight: bold; min-width: 45px; text-align: left;
                       font-size: 14px; flex-shrink: 0; display: flex; align-items: center; gap: 5px;
                     }
-        /* 編成名の横にあるアイコン（高さを1emから2emに拡大） */
-        .f-name-icon { height: 2em; width: auto; object-fit: contain;
+        
+        /* 修正：編成表画面の編成アイコンサイズを車体アイコンの高さ（32pxの60%=19.2px）に合わせる */
+        .f-name-icon { height: 19.2px; width: auto; object-fit: contain;
                      }
         
         .car-mini-list { display: flex;
                          gap: 1px; align-items: flex-end; flex-wrap: wrap; width: 100%; }
         
-        /* 車両アイコン幅をファイルに合わせる設定 */
+        /* 車ライコン幅をファイルに合わせる設定 */
         .mini-car-container { position: relative;
                               width: auto; height: 32px; display: flex; align-items: flex-end; }
         .mini-car-body { height: 60%;
@@ -505,7 +504,7 @@ function showFormation() {
 
 function showAbout() {
     hideAllViews();
-    document.getElementById('about-view').classList.remove('hidden');
+    document.getElementById('about-view').classList.add('hidden');
     toggleMenu();
 }
 
