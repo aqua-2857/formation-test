@@ -1,3 +1,4 @@
+テスト3
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -148,15 +149,12 @@
         .f-name-tag { background: none; color: var(--text-main); font-weight: bold; min-width: 45px; text-align: left;
                       font-size: 14px; flex-shrink: 0; display: flex; align-items: center; gap: 5px;
                     }
-        
-        /* 修正：編成表画面の編成アイコンサイズを車体アイコンの高さ（32pxの60%=19.2px）に合わせる */
-        .f-name-icon { height: 19.2px; width: auto; object-fit: contain;
+        .f-name-icon { height: 60%; width: auto; object-fit: contain;
                      }
         
         .car-mini-list { display: flex;
                          gap: 1px; align-items: flex-end; flex-wrap: wrap; width: 100%; }
         
-        /* 車ライコン幅をファイルに合わせる設定 */
         .mini-car-container { position: relative;
                               width: auto; height: 32px; display: flex; align-items: flex-end; }
         .mini-car-body { height: 60%;
@@ -298,7 +296,6 @@
         .car-desc { padding: 0 20px; margin: 8px 0 10px 0; font-size: 13px;
                   }
 
-        /* トグルスイッチのスタイル */
         .setting-row {
             display: flex;
             align-items: center;
@@ -504,7 +501,7 @@ function showFormation() {
 
 function showAbout() {
     hideAllViews();
-    document.getElementById('about-view').classList.add('hidden');
+    document.getElementById('about-view').classList.remove('hidden');
     toggleMenu();
 }
 
