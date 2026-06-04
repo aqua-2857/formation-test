@@ -448,7 +448,7 @@
         <div class="setting-row">
             <span class="setting-label">ラッピングを表示</span>
             <label class="switch">
-                <input type="checkbox" id="show-wrapping-toggle" checked onchange="handleWrappingToggle()">
+                <input type="checkbox" id="show-wrapping-toggle" onchange="handleWrappingToggle()">
                 <span class="slider"></span>
             </label>
         </div>
@@ -466,8 +466,14 @@ let fullHistoryEvents = [];
 let lastDetailParams = null;
 const PANTA_MAP = { '◇': 'p0', '＜': 'p1', '＞': 'p2', '<': 'py1', '>': 'py2', 'x': 'px' };
 
-// 設定フラグ（デフォルトON）
+// 設定フラグ（localStorageから読込。未設定ならデフォルトON）
 let showWrapping = true;
+const savedSetting = localStorage.getItem('showWrapping');
+if (savedSetting !== null) {
+    showWrapping = (savedSetting === 'true');
+}
+// 画面トグルの初期チェック状態を反映
+document.getElementById('show-wrapping-toggle').checked = showWrapping;
 
 // メニュー・表示切替
 function toggleMenu() {
@@ -514,10 +520,12 @@ function showDetailFromCarHistory() {
     }
 }
 
-// トグル切り替え時のイベント
+// トグル切り替え時のイベント（localStorageへの保存と再描画）
 function handleWrappingToggle() {
     showWrapping = document.getElementById('show-wrapping-toggle').checked;
-    // 現在開いている系統リストや詳細画面があれば再描画するために、必要に応じて現在の画面を更新
+    localStorage.setItem('showWrapping', showWrapping);
+    
+    // 画面が読み込まれている場合は再描画を行う
     if (currentSystem) {
         showFormationList(currentSystem);
     }
@@ -662,22 +670,10 @@ function showFormationList(sysName) {
         );
         const first = formData[0];
 
-        fContainer.insertAdjacentHTML('beforeend', `
-            <div class="system-section" onclick="toggleSection('${formId}', this)">
-                <div class="system-title">
-                    ${iconName ? `<img src="icon/${iconName}.png" class="system-icon">` : ''}
-                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                        <span>${formName}</span>
-                        ${note ? `<span style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">${note}</span>` : ''}
-                    </div>
-                </div>
-                <div class="arrow">▼</div>
-            </div>
-            <div id="${formId}" class="formation-list-bg">
-                <div class="direction-label"><span>◀︎${first.左方向||''}</span><span>${first.右方向||''}▶︎</span></div>
-                <div class="rows-box"></div>
-            </div>`);
-        const rowsBox = fContainer.querySelector(`#${formId} .rows-box`);
+        // 各グループ内のアコーディオン内コンテンツを保持するための箱
+        let rowsHtml = '';
+        let hasVisibleFormation = false; // 有効な見出し（編成）が存在するかフラグ
+
         const namesWithPeriod = [...new Set(formData.map(r => `${r.編成名}|${r.始 || ''}|${r.終 || ''}|${r.会社名}|${r.見出し特記事項 || ''}`))];
         namesWithPeriod.forEach(keyStr => {
             const [name, start, end, company, note] = keyStr.split('|');
@@ -689,21 +685,26 @@ function showFormationList(sysName) {
                 (r.見出し特記事項 || '') === note
                 ).sort((a,b) => a.組成順 - b.組成順);
             
-            const row = document.createElement('div');
-            row.className = 'formation-row';
-            row.onclick = () => renderDetail(name, start, end, company, note);
+            // ラッピングが非表示設定の時、かつ編成内すべての車両がラッピング（◯）の場合、見出しごとスキップ
+            if (!showWrapping && cars.every(c => c['ラッピング'] === '◯')) {
+                return;
+            }
+            hasVisibleFormation = true; // 表示可能な編成が1つ以上存在する
 
             const fIcon = cars[0]["編成アイコン"];
             const periodLabel = (start || end) ? ` (${start||''}〜${end||''})` : '';
             
-            let h = `<div class="f-name-tag">
+            // 行のHTML生成
+            let paramStr = `'${name.replace(/'/g, "\\'")}', '${(start||'')}', '${(end||'')}', '${company.replace(/'/g, "\\'")}', '${(note||'').replace(/'/g, "\\'")}'`;
+            rowsHtml += `<div class="formation-row" onclick="renderDetail(${paramStr})">`;
+            rowsHtml += `<div class="f-name-tag">
                         ${fIcon ? `<img src="icon/${fIcon}.png" class="f-name-icon" onerror="this.style.display='none'">` : ''}
                         <span>${name}${periodLabel}</span>
                      </div>
                      <div class="car-mini-list">`;
             
             cars.forEach(c => {
-                // ラッピング設定オフ、かつCSV「ラッピング」欄が「◯」の場合は非表示にする
+                // ラッピング設定オフの際、部分的にラッピング車両があれば非表示にする
                 if (!showWrapping && c['ラッピング'] === '◯') {
                     return;
                 }
@@ -712,7 +713,7 @@ function showFormationList(sysName) {
                 const rp = PANTA_MAP[c.pr];
                 const carNoDisplay = c.略号 ? (c.車両番号 ? c.車両番号.split('-').pop() : "") : (c.車両番号 || "");
 
-                h += `<div class="mini-car-container">
+                rowsHtml += `<div class="mini-car-container">
                     ${lp ? `<img src="parts/${lp}.png" class="mini-panta mini-panta-l ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     ${rp ? `<img src="parts/${rp}.png" class="mini-panta mini-panta-r ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     <img src="body/${c.車体アイコン}.png" class="mini-car-body">
@@ -722,9 +723,27 @@ function showFormationList(sysName) {
                     ${c.br ? `<img src="parts/${c.br}.png" class="mini-bogie mini-bogie-r">` : ''}
                  </div>`;
             });
-            row.innerHTML = h + `</div>`;
-            rowsBox.appendChild(row);
+            rowsHtml += `</div></div>`;
         });
+
+        // 該当する表示可能な見出し（編成）が1つでもある場合のみ、親アコーディオンセクション（形式見出し）をDOMに追加する
+        if (hasVisibleFormation) {
+            fContainer.insertAdjacentHTML('beforeend', `
+                <div class="system-section" onclick="toggleSection('${formId}', this)">
+                    <div class="system-title">
+                        ${iconName ? `<img src="icon/${iconName}.png" class="system-icon">` : ''}
+                        <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                            <span>${formName}</span>
+                            ${note ? `<span style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">${note}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="arrow">▼</div>
+                </div>
+                <div id="${formId}" class="formation-list-bg">
+                    <div class="direction-label"><span>◀︎${first.左方向||''}</span><span>${first.右方向||''}▶︎</span></div>
+                    <div class="rows-box">${rowsHtml}</div>
+                </div>`);
+        }
     });
 }
 
@@ -906,6 +925,8 @@ function showCarHistory(carId, carNo) {
         
         const section = document.createElement('div');
         section.className = 'car-unit';
+        
+        let paramStr = `'${c.編成名.replace(/'/g, "\\'")}', '${(c.始||'')}', '${(c.終||'')}', '${c.会社名.replace(/'/g, "\\'")}', '${(c['見出し特記事項']||'').replace(/'/g, "\\'")}'`;
         section.innerHTML = `
             <div style="font-size: 14px; font-weight: bold; color: var(--header-bg); margin-bottom: 5px; padding: 0 10px;">
                ${c.始 || ''} 〜 ${c.終 || ''}
@@ -920,7 +941,7 @@ function showCarHistory(carId, carNo) {
             </div>
 
             <div class="car-visual-row" style="padding: 0 10px;">
-                <div class="car-img-container" onclick="renderDetail('${c.編成名}', '${c.始||''}', '${c.終||''}', '${c.会社名}', '${c['見出し特記事項']||''}')">
+                <div class="car-img-container" onclick="renderDetail(${paramStr})">
                    ${lp ? `<img src="parts/${lp}.png" class="panta-detail panta-left ${lp === 'p0' ? 'panta-p0' : ''} ${lp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     ${rp ? `<img src="parts/${rp}.png" class="panta-detail panta-right ${rp === 'p0' ? 'panta-p0' : ''} ${rp.startsWith('py') ? 'low-panta' : ''}">` : ''}
                     <img src="body/${c.車体アイコン}.png" class="detail-car-body">
